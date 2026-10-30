@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 15 Review</title>
+<meta name="description" content="Expert review of Mondo-derived synonym proposals for the ICD-11 Foundation, release v20261030.">
+<style>
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --ink: #1d2433; --muted: #667085; --line: #e3e6eb;
+  --brand: #1f4e79; --brand-soft: #e8f0f8; --accent: #a6ce39;  /* ORCID green */
+  --ok: #2e7d32; --ok-soft: #e8f5e9; --bad: #c62828; --bad-soft: #ffebee;
+  --warn: #b26a00; --warn-soft: #fff4e0; --info: #1565c0; --info-soft: #e3f2fd;
+  --mock: #5b21b6; --mock-soft: #f3e8ff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; min-width: 1100px; }
+a { color: var(--info); }
+button { font: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .45; }
+input, select, textarea { font: inherit; }
+
+header.top { background: var(--brand); color: #fff; display: flex; align-items: center; gap: 24px; padding: 0 20px; height: 52px; }
+header.top .brand { font-weight: 700; font-size: 15px; }
+header.top nav a { color: #dce7f2; text-decoration: none; margin-right: 18px; padding: 15px 0; border-bottom: 3px solid transparent; }
+header.top nav a.on { color: #fff; border-color: var(--accent); }
+header.top .right { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+.chip { background: rgba(255,255,255,.14); border-radius: 12px; padding: 2px 10px; font-size: 12px; }
+.badge { display: inline-block; min-width: 18px; padding: 0 6px; border-radius: 9px; background: var(--bad); color: #fff; font-size: 11px; text-align: center; margin-left: 4px; }
+.orcid-btn { background: #fff; color: #333; border: 0; border-radius: 4px; padding: 5px 10px; display: flex; gap: 6px; align-items: center; }
+.idicon { display: inline-flex; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); color: #fff; font: 700 9px/16px sans-serif; justify-content: center; vertical-align: -3px; }
+
+main { padding: 20px; max-width: 1400px; margin: 0 auto; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+h2 { font-size: 16px; margin: 22px 0 8px; }
+.lead { color: var(--muted); margin: 0 0 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
+.note { background: var(--info-soft); border-left: 3px solid var(--info); padding: 8px 12px; border-radius: 4px; font-size: 13px; margin: 8px 0; }
+.note.warn { background: var(--warn-soft); border-color: var(--warn); }
+.note.mock { background: var(--mock-soft); border-color: var(--mock); color: var(--mock); }
+table.grid { width: 100%; border-collapse: collapse; background: var(--panel); }
+table.grid th, table.grid td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.grid th { font-size: 11px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); background: #fafbfc; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.mono { font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+.pill { display: inline-block; border-radius: 10px; padding: 1px 8px; font-size: 11px; font-weight: 600; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); } .pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); } .pill.info { background: var(--info-soft); color: var(--info); }
+.pill.grey { background: #eef0f3; color: #555; }
+.btn { border: 1px solid var(--line); background: #fff; border-radius: 6px; padding: 5px 12px; }
+.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+.btn.small { padding: 2px 8px; font-size: 12px; }
+.row { display: flex; gap: 12px; align-items: center; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.tabs button { border: 0; background: none; padding: 8px 14px; color: var(--muted); border-bottom: 2px solid transparent; }
+.tabs button.on { color: var(--brand); border-color: var(--brand); font-weight: 600; }
+.switch { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+.switch input { width: 30px; height: 16px; }
+
+/* review page */
+.review { display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+.elist { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; align-self: start; }
+.elist .item { padding: 8px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.elist .item.sel { background: var(--brand-soft); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #cfd4dc; flex: none; }
+.dot.part { background: #f0b429; } .dot.done { background: var(--ok); }
+.cfdot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); flex: none; }
+.cfdot.sev2 { background: var(--bad); }
+/* CodeFusion overlay (relation pills as in v3) */
+.cf { display: inline-block; white-space: nowrap; border-radius: 10px; padding: 1px 8px; font-size: 11px; font-weight: 600; }
+.cf.confirmed { background: var(--ok-soft); color: var(--ok); }
+.cf.broader, .cf.narrower { background: var(--info-soft); color: var(--info); }
+.cf.sibling { background: #ede7f6; color: #5e35b1; }
+.cf.unrelated { background: var(--bad-soft); color: var(--bad); }
+.cf.nomatch, .cf.rootfallback { background: #eef0f3; color: #555; }
+.syn.contested { background: #fff8f8; }
+.cflegend { background: #fafbfc; border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; font-size: 12px; margin: 6px 0; }
+.cfbanner { display: flex; gap: 8px; align-items: baseline; padding: 8px 12px; border-radius: 4px; font-size: 13px; margin-top: 10px; }
+.cfbanner.ok { background: var(--ok-soft); } .cfbanner.bad { background: var(--warn-soft); border-left: 3px solid var(--warn); }
+.modal { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); display: flex; align-items: center; justify-content: center; z-index: 10; }
+.modal .box { background: #fff; border-radius: 10px; max-width: 760px; max-height: 85vh; overflow: auto; padding: 18px 22px; }
+.modal h3 { font-size: 14px; margin: 14px 0 4px; }
+.modal .keypt { background: var(--warn-soft); border-left: 3px solid var(--warn); padding: 6px 10px; font-size: 13px; }
+.elist .lbl { flex: 1; } .elist .sub { font-size: 11px; color: var(--muted); }
+.ehead .uri { font-size: 12px; color: var(--muted); }
+.ehead .title { font-size: 20px; font-weight: 700; margin: 2px 0; }
+.def { font-size: 13px; color: #344054; margin: 6px 0; }
+.mondo { display: inline-block; background: #eef2ff; color: #3730a3; border-radius: 4px; padding: 0 6px; font-size: 12px; margin-right: 6px; }
+.ctx { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+.ctx .box { background: #fafbfc; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12px; }
+.ctx .box b { display: block; font-size: 11px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.syn { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 8px 0; background: #fff; }
+.syn.decided { border-left: 4px solid var(--ok); } .syn.rejected { border-left: 4px solid var(--bad); }
+.syn.flagged { border-left: 4px solid var(--warn); }
+.syn .text { font-size: 15px; font-weight: 600; }
+.syn .meta { font-size: 12px; color: var(--muted); margin: 3px 0 6px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.meter { letter-spacing: 1px; color: var(--ok); font-size: 11px; }
+.meter i { color: #d0d5dd; font-style: normal; }
+.decide { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.decide button { border: 1px solid var(--line); background: #fff; border-radius: 5px; padding: 3px 10px; font-size: 12px; }
+.decide button.on.accept, .decide button.on.variant, .decide button.on.narrower, .decide button.on.edit { background: var(--ok); border-color: var(--ok); color: #fff; }
+.decide button.on.reject { background: var(--bad); border-color: var(--bad); color: #fff; }
+.decide button.on.flag { background: var(--warn); border-color: var(--warn); color: #fff; }
+.decide button.on.skip { background: #9e9e9e; border-color: #9e9e9e; color: #fff; }
+.variants { font-size: 12px; margin-top: 4px; }
+.variants button { border: 1px dashed #9db6d1; background: var(--brand-soft); color: var(--brand); border-radius: 12px; padding: 1px 9px; font-size: 12px; margin: 2px 4px 0 0; }
+.variants button.chosen { border-style: solid; background: var(--brand); color: #fff; }
+.extra { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+.extra input, .extra textarea { width: 100%; border: 1px solid var(--line); border-radius: 5px; padding: 4px 8px; font-size: 12px; }
+.rej { font-size: 12px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 2px 12px; }
+.rej .r { color: var(--muted); }
+
+/* forms */
+.form { display: grid; grid-template-columns: 180px 1fr; gap: 10px 16px; align-items: start; max-width: 860px; }
+.form label { font-weight: 600; padding-top: 5px; }
+.form input[type=text], .form input[type=email], .form select, .form textarea { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; }
+.form .help { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.consent { background: #fafbfc; border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; font-size: 13px; }
+.consent ul { margin: 6px 0 6px 18px; padding: 0; }
+
+/* acknowledgements */
+.ackch { margin-bottom: 18px; }
+.ackch h3 { font-size: 14px; margin: 0 0 6px; color: var(--brand); }
+.person { display: grid; grid-template-columns: 240px 280px 1fr; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.person a { text-decoration: none; }
+
+/* v4 additions */
+.status { font-size: 12px; color: var(--muted); margin-left: 8px; }
+.status.err { color: var(--bad); } .status.ok { color: var(--ok); }
+.locked { opacity: .65; }
+.banner { padding: 10px 20px; font-size: 13px; }
+.banner.err { background: var(--bad-soft); color: var(--bad); } .banner.info { background: var(--info-soft); color: var(--info); }
+.copy { width: 100%; font-family: ui-monospace, Consolas, monospace; font-size: 12px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; }
+.hidden { display: none !important; }
+
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html" style="color:#fff;text-decoration:none">Mondo → ICD-11 synonym review</a>
+  <nav id="nav"></nav>
+  <div class="right" id="hdrRight"></div>
+</header>
+<noscript><div class="banner err">This site needs JavaScript.</div></noscript>
+<main id="view"><p class="muted">Loading…</p></main>
+<footer class="small muted" style="max-width:1400px;margin:10px auto 30px;padding:0 20px">
+  Release v20261030: Mondo 2026-10-06 (CC BY 4.0) → ICD-11 Foundation 2026-01 (© World Health Organization, CC BY-ND 3.0 IGO).
+  Proposals are under review and not part of ICD-11.
+</footer>
+<script>
+window.API_BASE = "https://synonym-review.tannerzhang0128.workers.dev";
+window.INDEX = {"release":"v20261030","inputs":{"mondo":"2026-10-06","icd11_foundation":"2026-01","icd11_mms_for_chapters":"2026-01","lvg":"2026","codefusion":"1.1.1"},"chapters":[{"tag":"ch01","chapter":"01","title":"Certain infectious or parasitic diseases","synonyms":223,"entities":151},{"tag":"ch02","chapter":"02","title":"Neoplasms","synonyms":1127,"entities":401},{"tag":"ch03","chapter":"03","title":"Diseases of the blood or blood-forming organs","synonyms":97,"entities":55},{"tag":"ch04","chapter":"04","title":"Diseases of the immune system","synonyms":199,"entities":92},{"tag":"ch05","chapter":"05","title":"Endocrine, nutritional or metabolic diseases","synonyms":669,"entities":267},{"tag":"ch06","chapter":"06","title":"Mental, behavioural or neurodevelopmental disorders","synonyms":20,"entities":13},{"tag":"ch07","chapter":"07","title":"Sleep-wake disorders","synonyms":6,"entities":2},{"tag":"ch08","chapter":"08","title":"Diseases of the nervous system","synonyms":421,"entities":186},{"tag":"ch09","chapter":"09","title":"Diseases of the visual system","synonyms":134,"entities":81},{"tag":"ch10","chapter":"10","title":"Diseases of the ear or mastoid process","synonyms":12,"entities":9},{"tag":"ch11","chapter":"11","title":"Diseases of the circulatory system","synonyms":123,"entities":73},{"tag":"ch12","chapter":"12","title":"Diseases of the respiratory system","synonyms":51,"entities":37},{"tag":"ch13","chapter":"13","title":"Diseases of the digestive system","synonyms":117,"entities":69},{"tag":"ch14","chapter":"14","title":"Diseases of the skin","synonyms":172,"entities":100},{"tag":"ch15","chapter":"15","title":"Diseases of the musculoskeletal system or connective tissue","synonyms":74,"entities":43},{"tag":"ch16","chapter":"16","title":"Diseases of the genitourinary system","synonyms":54,"entities":28},{"tag":"ch18","chapter":"18","title":"Pregnancy, childbirth or the puerperium","synonyms":25,"entities":11},{"tag":"ch19","chapter":"19","title":"Certain conditions originating in the perinatal period","synonyms":47,"entities":18},{"tag":"ch20","chapter":"20","title":"Developmental anomalies","synonyms":1425,"entities":667},{"tag":"ch21","chapter":"21","title":"Symptoms, signs or clinical findings, not elsewhere classified","synonyms":12,"entities":9},{"tag":"ch25","chapter":"25","title":"Codes for special purposes","synonyms":2,"entities":1},{"tag":"ch_unassigned","chapter":"–","title":"No MMS chapter","synonyms":2,"entities":1}]};
+window.BUNDLE = {"release":"v20261030","inputs":{"mondo":"2026-10-06","icd11_foundation":"2026-01","icd11_mms_for_chapters":"2026-01","lvg":"2026","codefusion":"1.1.1"},"chapter":"15","chapter_title":"Diseases of the musculoskeletal system or connective tissue","tag":"ch15","entities":[{"id":"426746156","title":"Achilles bursitis","fsn":"","definition":"","mms_code":"FB40.Y","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#426746156","existing":["Achillobursitis","capped hock"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"634724646","title":"Achilles tendinitis"}],"mondo":{"MONDO:0001594":{"label":"Achilles bursitis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-KU4UBEOPJ5","text":"Achilles bursitis or tendinitis","mondo":"MONDO:0001594","source":"DOID","source_id":"DOID:12857","confidence":3,"cf":{"rel":"broader","target":"634724646","target_title":"Achilles tendinitis","level":"FlexiMatch","score":0.607},"variants":[]}],"rejected":[{"text":"capped hock","mondo":"MONDO:0001594","reason":"Synonym already in ICD","detail":""}]},{"id":"549009522","title":"Adult-onset Still disease","fsn":"","definition":"Adult onset Still's disease is a rare rheumatic condition characterised by a combination of symptoms, such as fever higher than 39 degrees C, cutaneous rash during fever peaks, joint or muscle pain, lymph node hypertrophy, increase of white blood cells (especially polymorphonuclear neutrophils) and abnormalities of liver metabolism.","mms_code":"FA23","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#549009522","existing":[],"narrower":[],"inclusions":[],"exclusions":["Still disease NOS"],"parents":[{"id":"396939646","title":"Inflammatory arthropathies"}],"mondo":{"MONDO:0019355":{"label":"adult-onset Still disease","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-S74RCWPWPH","text":"Wissler-Fanconi syndrome","mondo":"MONDO:0019355","source":"Orphanet","source_id":"Orphanet:829","confidence":4,"cf":{"rel":"unrelated","target":"788002727","target_title":"Fanconi syndrome","level":"FlexiMatch","score":0.575},"variants":[]}],"rejected":[{"text":"adult-onset Still disease","mondo":"MONDO:0019355","reason":"Only a case mismatch","detail":""},{"text":"Adult-Onset Still's Disease","mondo":"MONDO:0019355","reason":"Matches an existing normalized synonym","detail":""},{"text":"adult-onset Still's disease","mondo":"MONDO:0019355","reason":"Matches an existing normalized synonym","detail":""},{"text":"AOSD","mondo":"MONDO:0019355","reason":"All uppercase letters","detail":""}]},{"id":"1878981266","title":"Autosomal recessive distal osteolysis syndrome","fsn":"","definition":"Autosomal recessive distal osteolysis syndrome is an early-onset distal osteolysis characterised by severe resorption of the hands and feet and absence of the distal and middle phalanges.","mms_code":"FB86.2","chapters_all":["15","20"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1878981266","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"680009427","title":"Osteolysis syndromes"}],"mondo":{"MONDO:0009810":{"label":"autosomal recessive distal osteolysis syndrome","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-7BETIRXQ3C","text":"distal osteolysis-short stature-intellectual disability syndrome","mondo":"MONDO:0009810","source":"Orphanet","source_id":"Orphanet:2776","confidence":4,"cf":{"rel":"rootfallback","target":"680009427","target_title":"Osteolysis syndromes","level":"FlexiMatch","score":0.496},"variants":[]},{"id":"MSY-NJXBSJ5AZV","text":"Petit-Fryns syndrome","mondo":"MONDO:0009810","source":"Orphanet","source_id":"Orphanet:2776","confidence":4,"cf":{"rel":"unrelated","target":"1327847749","target_title":"Fryns syndrome","level":"FlexiMatch","score":0.562},"variants":[]}],"rejected":[]},{"id":"138830223","title":"Blount disease","fsn":"","definition":"Blount disease is a bent bone dysplasia characterised by disturbed growth of the inner portion of the upper tibial extremity, progressively leading to bowlegged deformity with bone angulation just below the knee (tibia varus). In 60% of cases, the condition affects both legs.","mms_code":"FB82.1","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#138830223","existing":["Blount's osteochondrosis","osteochondrosis of proximal tibia","tibia vara"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1446309782","title":"Osteochondrosis or osteochondritis dissecans"}],"mondo":{"MONDO:0017194":{"label":"Blount disease","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-Y457Q5CL7S","text":"infantile tibia vara","mondo":"MONDO:0017194","source":"Orphanet","source_id":"Orphanet:2768","confidence":4,"cf":{"rel":"confirmed"},"variants":[]},{"id":"MSY-AXYH243HSH","text":"tibia vara Blount","mondo":"MONDO:0017194","source":"Orphanet","source_id":"Orphanet:2768","confidence":4,"cf":{"rel":"confirmed"},"variants":[]}],"rejected":[{"text":"Blount disease","mondo":"MONDO:0017194","reason":"Synonym already in ICD","detail":""},{"text":"Blount's disease","mondo":"MONDO:0017194","reason":"Matches an existing normalized synonym","detail":""},{"text":"Osteochondrosis deformans tibiae","mondo":"MONDO:0017194","reason":"Already names another ICD-11 entity","detail":"Juvenile osteochondrosis of tibia (1073331465)"}]},{"id":"1984620329","title":"Bursitis","fsn":"","definition":"This is a disorder of inflammation of one or more bursae (small sacs) of synovial fluid in the body which usually results in pain.","mms_code":"FB50","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1984620329","existing":["bursitis, not otherwise specified","inflammation of bursa"],"narrower":[],"inclusions":[],"exclusions":["Tibial collateral bursitis"],"parents":[{"id":"266977088","title":"Miscellaneous specified soft tissue disorders"}],"mondo":{"MONDO:0002471":{"label":"bursitis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-GUWDK5NTJ5","text":"inflammation of synovial bursa","mondo":"MONDO:0002471","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"confirmed"},"variants":["synovial bursa inflammation"]}],"rejected":[{"text":"synovial bursa inflammation","mondo":"MONDO:0002471","reason":"Matches normalization of a Mondo synonym that was already recommended","detail":"inflammation of synovial bursa"}]},{"id":"2041797033","title":"Chondrocalcinosis","fsn":"","definition":"Chondrocalcinosis refers to radiographic calcification in hyaline and/or fibrocartilage and is not specific for CPPD or other particular crystal deposition disease. Familial l CPPD deposition disease has been reported from many countries and some kindred have CPPD disease linked to ANKH mutation on chromosome 5p.","mms_code":"FA26.2","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#2041797033","existing":["CPDD - [calcium pyrophosphate deposition disease]","CPPD - [calcium pyrophosphate deposition disease]","Chondrocalcinosis NOS","Familial chondrocalcinosis","calcium pyrophosphate arthritis and periarthritis","calcium pyrophosphate deposition disease","chondrocalcinosis articularis","chondrocalcinosis due to pyrophosphate crystals","chondrocalcinosis, cause unspecified","chondrocalcinosis, due to pyrophosphate crystals, involving unspecified site"],"narrower":[],"inclusions":["Familial chondrocalcinosis"],"exclusions":[],"parents":[{"id":"1927248583","title":"Certain specified crystal arthropathies"}],"mondo":{"MONDO:0001314":{"label":"chondrocalcinosis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-DYEJAY45YH","text":"pseudogout","mondo":"MONDO:0001314","source":"DOID + NCIT","source_id":"DOID:1156 + NCIT:C34955","confidence":4,"cf":{"rel":"unrelated","target":"395622227","target_title":"Gout","level":"FlexiMatch","score":0.527},"variants":[]}],"rejected":[{"text":"calcium pyrophosphate deposition disease","mondo":"MONDO:0001314","reason":"Synonym already in ICD","detail":""}]},{"id":"1989556002","title":"Conditions associated with the spine","fsn":"","definition":"This is a group of conditions in which there is a deviation from or interruption of the normal structure or function of the spine.","mms_code":"FB1Z","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1989556002","existing":["disorder of spine","dorsopathies","spinal disorder"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1473673350","title":"Diseases of the musculoskeletal system or connective tissue"}],"mondo":{"MONDO:0000812":{"label":"vertebral column disorder","cf":{"rel":"narrower","target":"653693669","target_title":"Structural disorders of spine","level":"GoodMatch","score":1.0}}},"proposals":[{"id":"MSY-BODOBMRQYR","text":"disease of spine","mondo":"MONDO:0000812","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"narrower","target":"653693669","target_title":"Structural disorders of spine","level":"GoodMatch","score":1.0},"variants":[]},{"id":"MSY-BN5VAITIGS","text":"disease of vertebral column","mondo":"MONDO:0000812","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"unrelated","target":"405704375","target_title":"Vertebral column","level":"FlexiMatch","score":0.84},"variants":["vertebral column disease"]},{"id":"MSY-GX7UXG4QFW","text":"disorder of vertebral column","mondo":"MONDO:0000812","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"unrelated","target":"1179486972","target_title":"Disorders of muscles, vertebral column","level":"MatchHasAdditionalWords","score":0.773},"variants":[]}],"rejected":[{"text":"disease or disorder of vertebral column","mondo":"MONDO:0000812","reason":"Contains invalid substring","detail":" disease or disorder"},{"text":"vertebral column disease","mondo":"MONDO:0000812","reason":"Matches normalization of a Mondo synonym that was already recommended","detail":"disease of vertebral column"},{"text":"vertebral column disease or disorder","mondo":"MONDO:0000812","reason":"Contains invalid substring","detail":" disease or disorder"}]},{"id":"225223076","title":"Cranio-osteoarthropathy","fsn":"","definition":"Cranio-osteoarthropathy is a form of primary hypertrophic osteoarthropathy characterised by delayed closure of the cranial sutures and fontanelles, digital clubbing, arthropathy, and periostosis.","mms_code":"FB86.10","chapters_all":["14","15","20"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#225223076","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"792225761","title":"Primary hypertrophic osteoarthropathy"}],"mondo":{"MONDO:0015466":{"label":"cranio-osteoarthropathy","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-UV6P5NBZBT","text":"Currarino disease","mondo":"MONDO:0015466","source":"Orphanet","source_id":"Orphanet:1525","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-LTBH46N2HV","text":"Currarino idiopathic osteoarthropathy","mondo":"MONDO:0015466","source":"Orphanet","source_id":"Orphanet:1525","confidence":4,"cf":{"rel":"unrelated","target":"218751696","target_title":"Hypertrophic osteoarthropathy","level":"FlexiMatch","score":0.544},"variants":[]},{"id":"MSY-IRVFYZLIHE","text":"Reginato-Schiapachasse syndrome","mondo":"MONDO:0015466","source":"Orphanet","source_id":"Orphanet:1525","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[]},{"id":"1216860745","title":"Familial avascular necrosis of femoral head","fsn":"","definition":"Familial avascular necrosis of femoral head (ANFH) constitutes the rare hereditary form of ANFH, a severely disabling disease characterised by progressive groin pain, a limping gait, leg length discrepancy, collapse of the subchondral bone, limitation of hip function and eventual degeneration of the hip joint requiring total hip arthroplasty.","mms_code":"FB82.1","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1216860745","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1446309782","title":"Osteochondrosis or osteochondritis dissecans"}],"mondo":{"MONDO:0012126":{"label":"familial avascular necrosis of femoral head","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-B7SCWGH4SN","text":"aseptic Necrosis of femoral head","mondo":"MONDO:0012126","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"unrelated","target":"2040133603","target_title":"Idiopathic aseptic osteonecrosis, head","level":"FlexiMatch","score":0.594},"variants":[]},{"id":"MSY-WYOXFLHGIP","text":"aseptic Necrosis of head of femur","mondo":"MONDO:0012126","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"unrelated","target":"2040133603","target_title":"Idiopathic aseptic osteonecrosis, head","level":"FlexiMatch","score":0.594},"variants":[]},{"id":"MSY-ZEQTLAORBR","text":"familial osteonecrosis of the femoral head","mondo":"MONDO:0012126","source":"Orphanet","source_id":"Orphanet:86820","confidence":4,"cf":{"rel":"unrelated","target":"377397621","target_title":"Osteonecrosis due to haemoglobinopathy of the head","level":"FlexiMatch","score":0.631},"variants":[]}],"rejected":[]},{"id":"1161028858","title":"Familial expansile osteolysis","fsn":"","definition":"","mms_code":"FB86.2","chapters_all":["15","20"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1161028858","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"680009427","title":"Osteolysis syndromes"}],"mondo":{"MONDO:0008275":{"label":"familial expansile osteolysis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-D24CQRH226","text":"hereditary expansile polyostotic osteolytic dysplasia","mondo":"MONDO:0008275","source":"DOID + Orphanet","source_id":"DOID:0111542 + Orphanet:85195","confidence":5,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-PPQVIC7Y4Y","text":"McCabe disease","mondo":"MONDO:0008275","source":"DOID + OMIM + Orphanet","source_id":"DOID:0111542 + OMIM:174810 + Orphanet:85195","confidence":5,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[{"text":"familial expansile osteolysis","mondo":"MONDO:0008275","reason":"Only a case mismatch","detail":""}]},{"id":"2102976705","title":"Fibrodysplasia ossificans progressiva","fsn":"","definition":"This is an extremely rare disease of the connective tissue where a mutation of the body's repair mechanism causes fibrous tissue (including muscle, tendon, and ligament) to be ossified when damaged.","mms_code":"FB31.1","chapters_all":["15","20"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#2102976705","existing":["FOP - [fibrodysplasia ossificans progressiva]","Man of stone","Myositis ossificans progressiva","Münchmeyer disease","diffuse progressive ossifying polymyositis","fibrodysplasia ossificans congenita","myositis ossificans progressiva, site unspecified","progressive myositis ossificans","progressive myositis ossificans calcification"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"658569460","title":"Calcification or ossification of muscles of genetic origin"},{"id":"297017382","title":"Progressive ossification of skin, skeletal muscle, fascia, tendons or ligaments"}],"mondo":{"MONDO:0007606":{"label":"fibrodysplasia ossificans progressiva","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-NJU5JUMCZN","text":"Stone Man syndrome","mondo":"MONDO:0007606","source":"DOID + Orphanet","source_id":"DOID:13374 + Orphanet:337","confidence":5,"cf":{"rel":"confirmed"},"variants":["Stone man syndrome"]}],"rejected":[{"text":"fibrodysplasia ossificans progressiva","mondo":"MONDO:0007606","reason":"Only a case mismatch","detail":""},{"text":"FOP","mondo":"MONDO:0007606","reason":"Short word","detail":""},{"text":"fop","mondo":"MONDO:0007606","reason":"Short word","detail":""},{"text":"progressive myositis ossificans","mondo":"MONDO:0007606","reason":"Synonym already in ICD","detail":""},{"text":"Stone man syndrome","mondo":"MONDO:0007606","reason":"Matches normalization of a Mondo synonym that was already recommended","detail":"Stone Man syndrome"}]},{"id":"1318015458","title":"Gorham-Stout disease","fsn":"","definition":"Gorham-Stout disease is defined as a spontaneous, massive osteolysis characterised by local proliferation of small vascular or lymphatic vessels resulting in progressive destruction and resorption of bone. Clinical signs at presentation include pain, swelling and spontaneous fractures. Osteolysis may stop progressing at any time, but often osseous tissue completely disappears, leaving only a residual fibrous band, a dramatic development inspiring the term 'vanishing bone disease.'","mms_code":"FB86.2","chapters_all":["15","20"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1318015458","existing":["Gorham massive osteolysis"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"680009427","title":"Osteolysis syndromes"},{"id":"1106405864","title":"Syndromes with multiple structural anomalies, not of environmental origin"}],"mondo":{"MONDO:0007414":{"label":"Gorham-Stout disease","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-GMWTW6FPQ5","text":"Gorham disease","mondo":"MONDO:0007414","source":"Orphanet","source_id":"Orphanet:73","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-WV3DAMDXW3","text":"Gorham syndrome","mondo":"MONDO:0007414","source":"Orphanet","source_id":"Orphanet:73","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-KT3NPQ56P4","text":"idiopathic massive osteolysis","mondo":"MONDO:0007414","source":"Orphanet","source_id":"Orphanet:73","confidence":4,"cf":{"rel":"unrelated","target":"278179208","target_title":"Osteolysis","level":"FlexiMatch","score":0.663},"variants":[]},{"id":"MSY-PTEFO66HZH","text":"progressive massive osteolysis","mondo":"MONDO:0007414","source":"Orphanet","source_id":"Orphanet:73","confidence":4,"cf":{"rel":"unrelated","target":"278179208","target_title":"Osteolysis","level":"FlexiMatch","score":0.671},"variants":[]},{"id":"MSY-BSDFAMOZWE","text":"vanishing bone disease","mondo":"MONDO:0007414","source":"Orphanet","source_id":"Orphanet:73","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[{"text":"Gorham-Stout disease","mondo":"MONDO:0007414","reason":"Synonym already in ICD","detail":""}]},{"id":"551598148","title":"Idiopathic aseptic osteonecrosis","fsn":"","definition":"","mms_code":"FB81.0","chapters_all":["15","21"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#551598148","existing":["idiopathic aseptic necrosis of bone","idiopathic aseptic necrosis of bone, site unspecified","idiopathic avascular necrosis of bone"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"536467755","title":"Osteonecrosis"}],"mondo":{"MONDO:0018380":{"label":"idiopathic avascular necrosis","cf":{"rel":"unrelated","target":"467851106","target_title":"Osteochondritis dissecans","level":"ConflictingGoodMatch_SameFoundationMatchesMultipleExternalConcept","score":1.0}}},"proposals":[{"id":"MSY-D7KQ7ZD3O3","text":"idiopathic AVN","mondo":"MONDO:0018380","source":"Orphanet","source_id":"Orphanet:399307","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[]},{"id":"183642011","title":"Idiopathic juvenile osteoporosis","fsn":"","definition":"","mms_code":"FB83.1Y","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#183642011","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"2113001430","title":"Osteoporosis"}],"mondo":{"MONDO:0019409":{"label":"idiopathic juvenile osteoporosis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-TLLYNLBBL6","text":"juvenile osteoporosis","mondo":"MONDO:0019409","source":"DOID + Orphanet","source_id":"DOID:12559 + Orphanet:85193","confidence":5,"cf":{"rel":"confirmed"},"variants":[]},{"id":"MSY-LXRRR5GX3G","text":"Pediatric osteoporosis","mondo":"MONDO:0019409","source":"NCIT","source_id":"NCIT:C119996","confidence":3,"cf":{"rel":"rootfallback","target":"2113001430","target_title":"Osteoporosis","level":"FlexiMatch","score":0.718},"variants":["Paediatric osteoporosis"]}],"rejected":[{"text":"idiopathic juvenile osteoporosis","mondo":"MONDO:0019409","reason":"Only a case mismatch","detail":""},{"text":"IJO","mondo":"MONDO:0019409","reason":"Short word","detail":""},{"text":"Ijo","mondo":"MONDO:0019409","reason":"Short word","detail":""},{"text":"Paediatric osteoporosis","mondo":"MONDO:0019409","reason":"Matches normalization of a Mondo synonym that was already recommended","detail":"Pediatric osteoporosis"}]},{"id":"82568660","title":"Infectious myositis","fsn":"","definition":"Infective myositis is an acute, subacute, or chronic infection of skeletal muscle and may be caused by a wide range of infecting organisms. Immunosuppression, particularly as the result of HIV infection, is an important predisposing factor.","mms_code":"FB30","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#82568660","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1739890344","title":"Disorders of muscles"}],"mondo":{"MONDO:0023483":{"label":"infectious myositis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-HUOFCMFXEU","text":"infective myositis","mondo":"MONDO:0023483","source":"NCIT","source_id":"NCIT:C26984","confidence":3,"cf":{"rel":"confirmed"},"variants":[]}],"rejected":[{"text":"infectious myositis","mondo":"MONDO:0023483","reason":"Only a case mismatch","detail":""}]},{"id":"1128255226","title":"Juvenile enthesitis related arthritis","fsn":"","definition":"Enthesitis-related arthritis is a type of juvenile idiopathic arthritis (JIA) that represents the paediatric form of spondyloarthropathy in adults, but differs from it as the initial manifestations in the paediatric form are asymmetric oligoarticular arthritis of the lower limbs, associated with enthesitis. Axial manifestations (sacroiliac involvement) are present in only 25% of cases at onset but appear several years later in the disease course.","mms_code":"FA24.3","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1128255226","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1322678686","title":"Juvenile idiopathic arthritis"}],"mondo":{"MONDO:0019437":{"label":"enthesitis-related juvenile idiopathic arthritis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-DZIFXDXY3D","text":"enthesitis-related JIA","mondo":"MONDO:0019437","source":"NCIT + Orphanet","source_id":"NCIT:C119024 + Orphanet:85438","confidence":5,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[{"text":"ERA","mondo":"MONDO:0019437","reason":"Short word","detail":""},{"text":"era","mondo":"MONDO:0019437","reason":"Short word","detail":""}]},{"id":"1990556904","title":"Juvenile idiopathic oligoarthritis","fsn":"","definition":"Oligoarticular juvenile arthritis is the most common form of juvenile idiopathic arthritis, representing nearly 50% of cases. It is more common in girls (80% of cases), with onset occurring between ages 2 and 4. It is usually asymmetrical and affects between one and a maximum of four joints, predominantly those of the lower limbs (knee or foot).","mms_code":"FA24.0","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1990556904","existing":["oligoarticular juvenile arthritis","pauciarticular juvenile arthritis"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1322678686","title":"Juvenile idiopathic arthritis"}],"mondo":{"MONDO:0019433":{"label":"oligoarticular juvenile idiopathic arthritis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-WM5EXPFAXE","text":"Oligoarticular JIA","mondo":"MONDO:0019433","source":"NCIT + Orphanet","source_id":"NCIT:C119032 + Orphanet:85410","confidence":5,"cf":{"rel":"unrelated","target":"66023439","target_title":"Oligoarticular","level":"FlexiMatch","score":0.646},"variants":[]},{"id":"MSY-DW2T2MTRCE","text":"Pauciarticular JIA","mondo":"MONDO:0019433","source":"NCIT","source_id":"NCIT:C119032","confidence":3,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-MFOAAJK25F","text":"Pauciarticular juvenile idiopathic arthritis","mondo":"MONDO:0019433","source":"NCIT","source_id":"NCIT:C119032","confidence":3,"cf":{"rel":"confirmed"},"variants":[]}],"rejected":[{"text":"Pauciarticular chronic arthritis","mondo":"MONDO:0019433","reason":"Modifier found but not shared with fully specified name","detail":""}]},{"id":"762002965","title":"Juvenile Paget disease","fsn":"","definition":"","mms_code":"FB85.0","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#762002965","existing":["juvenile osteitis deformans"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1653656681","title":"Paget disease of bone"}],"mondo":{"MONDO:0009394":{"label":"juvenile Paget disease","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-EUN7SLJGWZ","text":"Hereditary Hyperphosphatasia","mondo":"MONDO:0009394","source":"DOID + Orphanet","source_id":"DOID:0081368 + Orphanet:2801","confidence":5,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":["hereditary hyperphosphatasia"]},{"id":"MSY-MFWTWYBRSF","text":"hyperostosis corticalis deformans juvenilis","mondo":"MONDO:0009394","source":"DOID + OMIM + Orphanet","source_id":"DOID:0081368 + OMIM:239000 + Orphanet:2801","confidence":5,"cf":{"rel":"unrelated","target":"241514592","target_title":"Hyperostosis corticalis generalisata","level":"FlexiMatch","score":0.431},"variants":[]}],"rejected":[{"text":"familial hyperphosphatasia","mondo":"MONDO:0009394","reason":"Modifier found but not shared with fully specified name","detail":""},{"text":"familial osteoectasia","mondo":"MONDO:0009394","reason":"Modifier found but not shared with fully specified name","detail":""},{"text":"hereditary hyperphosphatasia","mondo":"MONDO:0009394","reason":"Matches normalization of a Mondo synonym that was already recommended","detail":"Hereditary Hyperphosphatasia"},{"text":"JPG","mondo":"MONDO:0009394","reason":"No vowels","detail":""},{"text":"juvenile Paget disease","mondo":"MONDO:0009394","reason":"Only a case mismatch","detail":""},{"text":"juvenile Paget's disease","mondo":"MONDO:0009394","reason":"Matches an existing normalized synonym","detail":""}]},{"id":"1473955563","title":"Juvenile psoriatic arthritis","fsn":"","definition":"Juvenile psoriatic arthritis is an autoimmune inflammatory disorder representing less than 10% of all juvenile idiopathic arthritis (JIA) cases, and characterised by the association of psoriasis with one of two forms of arthritis: the association of psoriasis with an arthritis that most resembles oligoarticular arthritis with a risk of uveitis is more common in girls with onset at around 6 years of age, whereas the association of psoriasis with a form of arthritis that most resembles a spondyloarthropathy is most common in boys and manifests later.","mms_code":"FA24.2","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1473955563","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1322678686","title":"Juvenile idiopathic arthritis"}],"mondo":{"MONDO:0019436":{"label":"psoriasis-related juvenile idiopathic arthritis","cf":{"rel":"narrower","target":"132209442","target_title":"Juvenile psoriatic arthritis, hand","level":"OtherMatch","score":0.663}}},"proposals":[{"id":"MSY-XMESFKBIBT","text":"JPsA","mondo":"MONDO:0019436","source":"NCIT","source_id":"NCIT:C114361","confidence":3,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-LFFHYJMFJL","text":"psoriasis-related JIA","mondo":"MONDO:0019436","source":"Orphanet","source_id":"Orphanet:85436","confidence":4,"cf":{"rel":"unrelated","target":"63698555","target_title":"Psoriasis","level":"FlexiMatch","score":0.592},"variants":[]}],"rejected":[{"text":"juvenile psoriatic arthritis","mondo":"MONDO:0019436","reason":"Only a case mismatch","detail":""}]},{"id":"504387587","title":"Juvenile systemic arthritis","fsn":"","definition":"Systemic-onset juvenile idiopathic arthritis represents 10-11% of cases of juvenile idiopathic arthritis (JIA) and is marked by the severity of the extra-articular manifestations (fever, cutaneous eruptions) and by an equal sex ratio. Fever peaks are associated with transient cutaneous eruptions and diffuse erythematosis or urticarial-like lesions. The presence of arthritis is essential for diagnosis but may appear later in the disease course. The number of sites affected is variable (mono-, oligo- or polyarthritis) affecting both the small and large joints in a nearly symmetrical manner. This characteristic diagnostic triad may also be associated with an adenopathy and hepatosplenomegaly. Visceral complications (pericarditis, pleural effusion or serous peritonitis with abdominal pain) may be present.","mms_code":"FA24.4","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#504387587","existing":["Still disease"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1322678686","title":"Juvenile idiopathic arthritis"}],"mondo":{"MONDO:0019434":{"label":"systemic-onset juvenile idiopathic arthritis","cf":{"rel":"unrelated","target":"213276666","target_title":"Polyarthritis","level":"OtherMatch","score":0.895}}},"proposals":[{"id":"MSY-TIVTT3FTAK","text":"sJIA","mondo":"MONDO:0019434","source":"NCIT","source_id":"NCIT:C119031","confidence":3,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-BQOCEZJ6VC","text":"SoJIA","mondo":"MONDO:0019434","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-FUW3EH5OLE","text":"systemic polyarthritis","mondo":"MONDO:0019434","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"unrelated","target":"213276666","target_title":"Polyarthritis","level":"FlexiMatch","score":0.895},"variants":[]},{"id":"MSY-VZQJHVJIIO","text":"systemic-onset JIA","mondo":"MONDO:0019434","source":"Orphanet","source_id":"Orphanet:85414","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[{"text":"Still disease","mondo":"MONDO:0019434","reason":"Synonym already in ICD","detail":""}]},{"id":"550352998","title":"Lethal recessive chondrodysplasia","fsn":"","definition":"Lethal recessive chondrodysplasia is a skeletal dysplasia characterised by severe micromelic dwarfism associated with relatively well developed and rounded lower femoral epiphysis on X-rays.","mms_code":"FB82.Y","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#550352998","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"76326572","title":"Lethal chondrodysplasia"}],"mondo":{"MONDO:0015425":{"label":"lethal recessive chondrodysplasia","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-MU6QI456B5","text":"Maroteaux-Stanescu-Cousin syndrome","mondo":"MONDO:0015425","source":"Orphanet","source_id":"Orphanet:1423","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[{"text":"chondrodysplasia lethal recessive","mondo":"MONDO:0015425","reason":"Matches an existing normalized synonym","detail":""}]},{"id":"132749439","title":"McCune-Albright syndrome","fsn":"","definition":"McCune-Albright syndrome (MAS) is classically defined by the clinical triad of fibrous dysplasia of bone (FD), café-au-lait skin spots, and precocious puberty (PP).","mms_code":"FB80.0","chapters_all":["02","05","14","15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#132749439","existing":["Albright-McCune-Sternberg syndrome","Fibrous dysplasia with pigmentary skin changes and precocious puberty"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"264268169","title":"Inherited cancer-predisposing syndromes"},{"id":"583743726","title":"Primary hyperthyroidism"},{"id":"1495024153","title":"Peripheral precocious puberty"},{"id":"1465001518","title":"Syndromic genetically-determined hypermelanosis or lentiginosis"},{"id":"1704766818","title":"Fibrous dysplasia of bone"}],"mondo":{"MONDO:0018919":{"label":"McCune-Albright syndrome","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-J6NDN2HBJJ","text":"Albright's disease","mondo":"MONDO:0018919","source":"GARD","source_id":"GARD:0006995","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-CMZPIFVTQX","text":"gonadotropin-independent female-limited sexual precocity","mondo":"MONDO:0018919","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"sibling","target":"1017191805","target_title":"Testotoxicosis","level":"FlexiMatch","score":0.628},"variants":[]},{"id":"MSY-W32XRBNHH4","text":"Mccune-Albright syndrome, somatic, mosaic","mondo":"MONDO:0018919","source":"OMIM","source_id":"OMIM:174800","confidence":3,"cf":{"rel":"confirmed"},"variants":[]}],"rejected":[{"text":"MAS","mondo":"MONDO:0018919","reason":"Short word","detail":""},{"text":"McCune Albright Syndrome","mondo":"MONDO:0018919","reason":"Matches an existing normalized synonym","detail":""},{"text":"McCune Albright syndrome","mondo":"MONDO:0018919","reason":"Matches an existing normalized synonym","detail":""}]},{"id":"1033883899","title":"Monostotic fibrous dysplasia","fsn":"","definition":"","mms_code":"FB80.0","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1033883899","existing":["Jaffe-Lichtenstein syndrome","fibrous dysplasia, site unspecified","localised osteitis fibrosa","monostotic dysplasia","osteitis fibrosa circumscripta"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1704766818","title":"Fibrous dysplasia of bone"}],"mondo":{"MONDO:0019665":{"label":"monostotic fibrous dysplasia","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-46E242TQMP","text":"Jaffe-Lichtenstein disease","mondo":"MONDO:0019665","source":"Orphanet","source_id":"Orphanet:93277","confidence":4,"cf":{"rel":"confirmed"},"variants":[]},{"id":"MSY-NQ3DH6VYCW","text":"monostotic fibrous dysplasia of bone","mondo":"MONDO:0019665","source":"NCIT","source_id":"NCIT:C53971","confidence":3,"cf":{"rel":"confirmed"},"variants":[]}],"rejected":[{"text":"monostotic fibrous dysplasia","mondo":"MONDO:0019665","reason":"Only a case mismatch","detail":""},{"text":"monostotic fibrous dysplasia (disease)","mondo":"MONDO:0019665","reason":"Contains invalid substring","detail":"(disease)"}]},{"id":"1537082562","title":"Nephrogenic systemic fibrosis","fsn":"","definition":"Nephrogenic systemic fibrosis (NSF) is an iatrogenic systemic fibrosing disorder which affects principally skin and joints and which is due to exposure of patients with moderate to severe kidney failure to gadolinium-containing contrast agents. It manifests with induration, thickening, and hardening of the skin, especially of the extremities, and may be associated with joint contractures. Histopathologically there is a proliferation of dermal fibroblasts and dendritic cells with deposition of collagen and mucin.","mms_code":"FB51.Y","chapters_all":["14","15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1537082562","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"579547731","title":"Scleroedema and miscellaneous scleroderma-like conditions"},{"id":"369012830","title":"Cutaneous markers of disorders of the kidney or urinary tract"},{"id":"778830229","title":"Adverse cutaneous effects of diagnostic procedures"},{"id":"568959366","title":"Systemic fibrosis induced by drugs or chemicals"}],"mondo":{"MONDO:0015294":{"label":"nephrogenic systemic fibrosis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-SSJGGXKIFZ","text":"nephrogenic fibrosing dermopathy","mondo":"MONDO:0015294","source":"NCIT + Orphanet","source_id":"NCIT:C84920 + Orphanet:137617","confidence":5,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[]},{"id":"558562409","title":"Osteoarthritis","fsn":"","definition":"Osteoarthritis (OA) can be defined as a group of distinct, but overlapping diseases, which may have different etiologies, but similar biological, morphological, and clinical outcomes affecting the articular cartilage, subchondral bone, ligaments, joint capsule, synovial membrane, and periarticular muscles. OA is the most common joint disease in persons 65 years of age and above. Its etiology is not fully understood, although there are several related factors, such as female gender, genetics, metabolism, and excessive mechanical stress. The diagnosis of OA is primarily based on clinical history and physical examination. The cardinal radiographic features of OA are focal/non-uniform narrowing of the joint space in the areas subjected to the most pressure, subchondral cysts, subchondral sclerosis, and osteophytes.","mms_code":"FA0Z","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#558562409","existing":["OA - [osteoarthritis]","arthrosis NOS","osteoarthritis NOS"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1525792972","title":"Arthropathies"}],"mondo":{"MONDO:0005178":{"label":"osteoarthritis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-TBT35DLMJI","text":"degenerative joint disease","mondo":"MONDO:0005178","source":"DOID + NCIT","source_id":"DOID:8398 + NCIT:C3293","confidence":4,"cf":{"rel":"narrower","target":"1673736911","target_title":"Polyosteoarthritis","level":"MatchHasAdditionalWords","score":0.496},"variants":[]}],"rejected":[]},{"id":"467851106","title":"Osteochondritis dissecans","fsn":"","definition":"","mms_code":"FB82.1","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#467851106","existing":["OCD - [osteochondritis dissecans]","idiopathic avascular necrosis","osteochondrosis dissecans"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1446309782","title":"Osteochondrosis or osteochondritis dissecans"}],"mondo":{"MONDO:0017178":{"label":"osteochondritis dissecans","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-CGFYLD6TTY","text":"Koenig disease","mondo":"MONDO:0017178","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-CIOTAFDZA3","text":"König disease","mondo":"MONDO:0017178","source":"Orphanet","source_id":"Orphanet:2764","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":["Konig disease"]}],"rejected":[{"text":"Konig disease","mondo":"MONDO:0017178","reason":"Matches normalization of a Mondo synonym that was already recommended","detail":"König disease"},{"text":"OD","mondo":"MONDO:0017178","reason":"Short word","detail":""},{"text":"osteochondritis dissecans","mondo":"MONDO:0017178","reason":"Only a case mismatch","detail":""},{"text":"osteochondritis dissecans (disease)","mondo":"MONDO:0017178","reason":"Contains invalid substring","detail":"(disease)"}]},{"id":"536467755","title":"Osteonecrosis","fsn":"","definition":"Osteonecrosis is the medical term for death of bone tissue that occurs when the supply of blood to the bone is cut off for some reason. Doctors sometimes refer to the condition as avascular necrosis, aseptic necrosis or ischemic bone necrosis","mms_code":"FB81","chapters_all":["15","21"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#536467755","existing":["aseptic necrosis of bone","aseptic necrosis of bone, site unspecified","aseptic or avascular bone necrosis","aseptic osteonecrosis","avascular necrosis of bone","bone necrosis","necrosis of bone NOS","necrotic bone","necrotizing bone","spontaneous osteonecrosis"],"narrower":[],"inclusions":["avascular necrosis of bone"],"exclusions":[],"parents":[{"id":"1523445293","title":"Osteopathies or chondropathies"},{"id":"1219078201","title":"Symptoms or signs of the musculoskeletal system"}],"mondo":{"MONDO:0005380":{"label":"osteonecrosis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-POXTBWVZ26","text":"ischemic bone disease","mondo":"MONDO:0005380","source":"DOID","source_id":"DOID:0080008","confidence":3,"cf":{"rel":"rootfallback","target":"1473673350","target_title":"Diseases of the musculoskeletal system or connective tissue","level":"FlexiMatch","score":0.564},"variants":["ischaemic bone disease"]}],"rejected":[{"text":"bone necrosis","mondo":"MONDO:0005380","reason":"Synonym already in ICD","detail":""},{"text":"ischaemic bone disease","mondo":"MONDO:0005380","reason":"Matches normalization of a Mondo synonym that was already recommended","detail":"ischemic bone disease"},{"text":"osteonecrosis","mondo":"MONDO:0005380","reason":"Only a case mismatch","detail":""}]},{"id":"822486319","title":"Osteonecrosis due to trauma","fsn":"","definition":"","mms_code":"FB81.3","chapters_all":["15","21"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#822486319","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"536467755","title":"Osteonecrosis"}],"mondo":{"MONDO:0018375":{"label":"traumatic avascular necrosis","cf":{"rel":"broader","target":"536467755","target_title":"Osteonecrosis","level":"OtherMatch","score":0.69}}},"proposals":[{"id":"MSY-DV7TMA6CVK","text":"traumatic AVN","mondo":"MONDO:0018375","source":"Orphanet","source_id":"Orphanet:399175","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[]},{"id":"2113001430","title":"Osteoporosis","fsn":"","definition":"","mms_code":"FB83.1","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#2113001430","existing":["bone rarefaction NOS","idiopathic osteoporosis"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"418128833","title":"Low bone mass disorders"}],"mondo":{"MONDO:0005298":{"label":"osteoporosis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-FGGJZJCB55","text":"bone mineral density quantitative trait locus","mondo":"MONDO:0005298","source":"OMIM","source_id":"OMIM:166710","confidence":3,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-3WDDJ7F3RT","text":"osteoporosis, involutional","mondo":"MONDO:0005298","source":"OMIM","source_id":"OMIM:166710","confidence":3,"cf":{"rel":"confirmed"},"variants":[]}],"rejected":[{"text":"osteoporosis, postmenopausal","mondo":"MONDO:0005298","reason":"Matches a synonym of a child in ICD","detail":""}]},{"id":"519938437","title":"Pacman dysplasia","fsn":"","definition":"Pacman dysplasia is a skeletal dysplasia characterised by epiphyseal stippling and osteoclastic overactivity.","mms_code":"FB86.2","chapters_all":["15","20"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#519938437","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"680009427","title":"Osteolysis syndromes"}],"mondo":{"MONDO:0008175":{"label":"pacman dysplasia","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-L4EQE53MAQ","text":"epiphyseal stippling syndrome-osteoclastic hyperplasia syndrome","mondo":"MONDO:0008175","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[{"text":"pacman dysplasia","mondo":"MONDO:0008175","reason":"Only a case mismatch","detail":""}]},{"id":"160345690","title":"Palmar fascial fibromatosis","fsn":"","definition":"This is a fixed flexion contracture of the hand where the fingers bend towards the palm and cannot be fully extended (straightened).","mms_code":"FB51.0","chapters_all":["14","15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#160345690","existing":["Contracture of palmar fascia","Dupuytren contracture","Dupuytren disease of palm","Dupuytren's contraction or disease","Palmar fibromatosis","Retraction of palmar fascia"],"narrower":[],"inclusions":["Dupuytren disease of palm"],"exclusions":[],"parents":[{"id":"1988623146","title":"Superficial fibromatoses"},{"id":"765238319","title":"Fibroblastic disorders"}],"mondo":{"MONDO:0006345":{"label":"palmar fibromatosis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-3ZTXOKQVLC","text":"palmar part of manus fibromatosis","mondo":"MONDO:0006345","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"confirmed"},"variants":[]}],"rejected":[{"text":"Dupuytren contracture","mondo":"MONDO:0006345","reason":"Synonym already in ICD","detail":""},{"text":"Dupuytren contracture (disease)","mondo":"MONDO:0006345","reason":"Contains invalid substring","detail":"(disease)"},{"text":"palmar fibromatosis","mondo":"MONDO:0006345","reason":"Only a case mismatch","detail":""}]},{"id":"505688542","title":"Periostitis","fsn":"","definition":"","mms_code":"FB84.Y","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#505688542","existing":["monomelic periostitis"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"2058491071","title":"Osteomyelitis or osteitis"}],"mondo":{"MONDO:0004934":{"label":"periostitis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-PN3ZEQXPVW","text":"periosteum inflammation","mondo":"MONDO:0004934","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"unrelated","target":"1642866302","target_title":"Periosteum","level":"FlexiMatch","score":0.759},"variants":[]}],"rejected":[{"text":"periostitis (disease)","mondo":"MONDO:0004934","reason":"Contains invalid substring","detail":"(disease)"}]},{"id":"409482033","title":"Plantar fascial fibromatosis","fsn":"","definition":"Plantar fascial fibromatosis is a relatively uncommon form of superficial fibromatosis affecting the deep connective tissue of the sole of the foot. It is characterised by the presence of spindle-shaped fibroblasts, hypercellularity, and an infiltrative growth pattern. It presents clinically with nodules or cords in the plantar fascia and tendons. In severe cases contractures of the toes may develop, making walking painful.","mms_code":"FB51.Y","chapters_all":["14","15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#409482033","existing":["Contracture of plantar fascia","Ledderhose disease","Plantar fibromatosis"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1988623146","title":"Superficial fibromatoses"},{"id":"765238319","title":"Fibroblastic disorders"}],"mondo":{"MONDO:0004684":{"label":"plantar fibromatosis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-I5A67MUMFI","text":"Lederhose disease","mondo":"MONDO:0004684","source":"GARD","source_id":"GARD:0006873","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-CQ4242MUQ2","text":"plantar part of pes superficial Fibromatosis","mondo":"MONDO:0004684","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"confirmed"},"variants":["plantar part of pes superficial fibromatosis","superficial fibromatosis of plantar part of pes"]}],"rejected":[{"text":"Ledderhose's disease","mondo":"MONDO:0004684","reason":"Matches an existing normalized synonym","detail":""},{"text":"plantar fibromatosis","mondo":"MONDO:0004684","reason":"Only a case mismatch","detail":""},{"text":"plantar part of pes superficial fibromatosis","mondo":"MONDO:0004684","reason":"Matches normalization of a Mondo synonym that was already recommended","detail":"plantar part of pes superficial Fibromatosis"},{"text":"superficial fibromatosis of plantar part of pes","mondo":"MONDO:0004684","reason":"Matches normalization of a Mondo synonym that was already recommended","detail":"plantar part of pes superficial Fibromatosis"}]},{"id":"792225761","title":"Primary hypertrophic osteoarthropathy","fsn":"","definition":"Primary hypertrophic osteoarthropathy (PHO) is a clinically heterogeneous familial disorder characterised by digital clubbing and osteoarthropathy associated with mutations in the HPGD gene. Variable features include pachydermia in pachydermoperiostosis and delayed closure of the fontanelles in cranio-osteoarthropathy.","mms_code":"FB86.10","chapters_all":["14","15","20"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#792225761","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1443941730","title":"Genetic syndromes affecting nails"},{"id":"218751696","title":"Hypertrophic osteoarthropathy"}],"mondo":{"MONDO:0016620":{"label":"primary hypertrophic osteoarthropathy","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-JNRL4OD6QJ","text":"idiopathic hypertrophic osteoarthropathy","mondo":"MONDO:0016620","source":"Orphanet","source_id":"Orphanet:248095","confidence":4,"cf":{"rel":"broader","target":"218751696","target_title":"Hypertrophic osteoarthropathy","level":"FlexiMatch","score":0.873},"variants":[]}],"rejected":[{"text":"hypertrophic osteoarthropathy, primary","mondo":"MONDO:0016620","reason":"Contains invalid substring","detail":", primary"},{"text":"hypertrophic osteoarthropathy, primary, autosomal recessive, type 1","mondo":"MONDO:0016620","reason":"Contains invalid substring","detail":", primary"},{"text":"hypertropic osteoarthropathy, primary","mondo":"MONDO:0016620","reason":"Contains invalid substring","detail":", primary"},{"text":"pachydermoperiostosis","mondo":"MONDO:0016620","reason":"Matches a synonym of a child in ICD","detail":""},{"text":"pachydermoperiostosis of nail [ambiguous]","mondo":"MONDO:0016620","reason":"Contains invalid substring","detail":"["},{"text":"PDP","mondo":"MONDO:0016620","reason":"No vowels","detail":""},{"text":"PHO","mondo":"MONDO:0016620","reason":"Short word","detail":""},{"text":"Touraine Solente Gole syndrome","mondo":"MONDO:0016620","reason":"Matches a synonym of a child in ICD","detail":""},{"text":"Touraine-Solente-Gole syndrome","mondo":"MONDO:0016620","reason":"Matches a synonym of a child in ICD","detail":""}]},{"id":"868183264","title":"Psoriatic arthritis","fsn":"","definition":"Psoriatic arthritis, a member of the spondyloarthritis family, is defined as an inflammatory arthropathy associated with psoriasis that is usually rheumatic factor negative. It is characterised by various clinical manifestations, including symmetric polyarthritis, asymmetric oligoarthritis or polyarthritis, spinal inflammation similar to ankylosing spondylitis, peripheral enthesitis, anterior chest wall involvement, distal interphalangeal arthritis of the hands and feet, dactylitis (sausage digit or toe), arthritis mutilans and onycho-pachydermo-periostitis. The CASPAR has high sensitivity and specificity.","mms_code":"FA21","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#868183264","existing":["psoriatic arthropathy"],"narrower":[],"inclusions":[],"exclusions":["Juvenile psoriatic arthritis"],"parents":[{"id":"396939646","title":"Inflammatory arthropathies"}],"mondo":{"MONDO:0011849":{"label":"psoriatic arthritis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-Y6DDXAGHW4","text":"arthritis psoriatica","mondo":"MONDO:0011849","source":"DOID + NCIT","source_id":"DOID:9008 + NCIT:C61277","confidence":4,"cf":{"rel":"rootfallback","target":"396939646","target_title":"Inflammatory arthropathies","level":"FlexiMatch","score":0.631},"variants":[]},{"id":"MSY-QRO2HEQWSB","text":"arthropathic psoriasis","mondo":"MONDO:0011849","source":"DOID","source_id":"DOID:9008","confidence":3,"cf":{"rel":"unrelated","target":"1525792972","target_title":"Arthropathies","level":"FlexiMatch","score":0.626},"variants":[]}],"rejected":[]},{"id":"588435239","title":"Pyknoachondrogenesis","fsn":"","definition":"Pyknoachondrogenesis is a lethal skeletal osteochondrodysplasia characterised by severe generalised osteosclerosis with extreme shortening of the limbs and hydrops fetalis prenatally, or a large head, palpebral oedema, a flat nose, low-set ears, a short neck, a short and wide trunk, a prominent abdomen, and severe micromelic dwarfism at birth.","mms_code":"FB82.Y","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#588435239","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"76326572","title":"Lethal chondrodysplasia"}],"mondo":{"MONDO:0009942":{"label":"pyknoachondrogenesis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-MOOUPBK66C","text":"camera syndrome","mondo":"MONDO:0009942","source":"Orphanet","source_id":"Orphanet:3003","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[{"text":"pyknoachondrogenesis","mondo":"MONDO:0009942","reason":"Only a case mismatch","detail":""}]},{"id":"856598467","title":"Pyomyositis","fsn":"","definition":"","mms_code":"FB30","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#856598467","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"82568660","title":"Infectious myositis"}],"mondo":{"MONDO:0019168":{"label":"pyomyositis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-IROJWFWVMH","text":"myositis purulenta tropica","mondo":"MONDO:0019168","source":"Orphanet","source_id":"Orphanet:764","confidence":4,"cf":{"rel":"unrelated","target":"1629426369","target_title":"Myositis, not elsewhere classified","level":"FlexiMatch","score":0.499},"variants":[]},{"id":"MSY-ER5WOJ4335","text":"myositis tropicans","mondo":"MONDO:0019168","source":"Orphanet","source_id":"Orphanet:764","confidence":4,"cf":{"rel":"unrelated","target":"1629426369","target_title":"Myositis, not elsewhere classified","level":"FlexiMatch","score":0.682},"variants":[]}],"rejected":[{"text":"PM","mondo":"MONDO:0019168","reason":"No vowels","detail":""},{"text":"suppurative myositis","mondo":"MONDO:0019168","reason":"Already names another ICD-11 entity","detail":"Suppurative myositis (1553209190)"},{"text":"tropical pyomyositis","mondo":"MONDO:0019168","reason":"Already names another ICD-11 entity","detail":"Tropical pyomyositis (169932128)"}]},{"id":"1733785551","title":"Sinding-Larsen-Johansson disease","fsn":"","definition":"Sinding-Larsen-Johansson disease is a type of osteochondrosis affecting the attachment of the patellar tendon to the patella and characterised by tenderness and localised swelling of the patella.","mms_code":"FB82.1","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1733785551","existing":["Larsen-Johansson syndrome","Sinding Larsen disease","Sinding-Larsen disease of adult","juvenile osteochondrosis of secondary patellar centre [Sinding-Larsen]"],"narrower":[],"inclusions":["juvenile osteochondrosis of secondary patellar centre [Sinding-Larsen]"],"exclusions":[],"parents":[{"id":"1446309782","title":"Osteochondrosis or osteochondritis dissecans"}],"mondo":{"MONDO:0019970":{"label":"Sinding-Larsen-Johansson disease","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-DNKWNJIPPF","text":"aseptic necrosis of patella","mondo":"MONDO:0019970","source":"Orphanet","source_id":"Orphanet:97337","confidence":4,"cf":{"rel":"unrelated","target":"536467755","target_title":"Osteonecrosis","level":"FlexiMatch","score":0.543},"variants":[]}],"rejected":[{"text":"Osteochondrosis of patella","mondo":"MONDO:0019970","reason":"Already names another ICD-11 entity","detail":"Osteochondrosis of patella (1812673683)"}]},{"id":"1269698463","title":"Skeletal fluorosis","fsn":"","definition":"","mms_code":"FB80.1","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1269698463","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"2084384481","title":"Drug-induced bone dysplasia"}],"mondo":{"MONDO:0400003":{"label":"skeletal fluorosis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-IORYKFEU5U","text":"fluorosis of the skeleton","mondo":"MONDO:0400003","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]}],"rejected":[]},{"id":"987501456","title":"Solitary bone cyst","fsn":"","definition":"A solitary bone cyst is a benign non-epithelial bone cavity that is asymptomatic and that is found most commonly in the second decade of life by chance. The long bones are most often affected, but cases involving the jaw bone have been reported.","mms_code":"FB80.5","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#987501456","existing":["cyst of bone","local cyst of bone","simple bone cyst","solitary bone cyst, unspecified site","traumatic bone cyst","unicameral bone cyst"],"narrower":[],"inclusions":[],"exclusions":["solitary cyst of jaw"],"parents":[{"id":"236930114","title":"Certain specified disorders of bone density or structure"}],"mondo":{"MONDO:0019372":{"label":"solitary bone cyst","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-6PXXMDVFZP","text":"solitary cyst","mondo":"MONDO:0019372","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"confirmed"},"variants":[]}],"rejected":[{"text":"bone cyst","mondo":"MONDO:0019372","reason":"Matches an existing normalized synonym","detail":""},{"text":"cyst of bone","mondo":"MONDO:0019372","reason":"Synonym already in ICD","detail":""},{"text":"cyst of the bone","mondo":"MONDO:0019372","reason":"Matches an existing normalized synonym","detail":""},{"text":"simple bone cyst","mondo":"MONDO:0019372","reason":"Synonym already in ICD","detail":""},{"text":"unicameral bone cyst","mondo":"MONDO:0019372","reason":"Synonym already in ICD","detail":""}]},{"id":"1276091756","title":"Talo-patello-scaphoid osteolysis","fsn":"","definition":"Talo-patello-scaphoid osteolysis is a syndrome belonging to the category of carpal-tarsal osteolysis diseases without nephropathy, and is characterised by bilateral osteolysis of the tali, scaphoids and patella, synovitis, and short fourth metacarpals.","mms_code":"FB86.2","chapters_all":["15","20"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1276091756","existing":[],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"680009427","title":"Osteolysis syndromes"}],"mondo":{"MONDO:0012330":{"label":"talo-patello-scaphoid osteolysis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-4ZSQSCB2BW","text":"singh-Williams-McAlister syndrome","mondo":"MONDO:0012330","source":"Orphanet","source_id":"Orphanet:50809","confidence":4,"cf":{"rel":"unrelated","target":"1644383468","target_title":"Williams-Beuren syndrome","level":"FlexiMatch","score":0.431},"variants":[]}],"rejected":[]},{"id":"163006370","title":"Tenosynovitis","fsn":"","definition":"","mms_code":"FB40","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#163006370","existing":["synovitis or tenosynovitis"],"narrower":[],"inclusions":[],"exclusions":["current injury - see injury of ligament or tendon by body region","soft tissue disorders related to use, overuse and pressure"],"parents":[{"id":"842838910","title":"Disorders of synovium or tendon"}],"mondo":{"MONDO:0004855":{"label":"tenosynovitis","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-T4EJGOU4QA","text":"tendon sheath inflammation","mondo":"MONDO:0004855","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"unrelated","target":"140404186","target_title":"Tendinitis, not elsewhere classified","level":"FlexiMatch","score":0.556},"variants":[]}],"rejected":[{"text":"Tenosynovitides","mondo":"MONDO:0004855","reason":"Matches an existing normalized synonym","detail":""}]},{"id":"67016273","title":"Thiemann disease, familial form","fsn":"","definition":"Thiemann disease is a very rare genetic necrotic bone disorder characterised clinically by painless swelling of the proximal interphalangeal joints associated with osteonecrosis of epiphyses followed by osteoarthritic changes, with onset before 25 years of age and often a benign course.","mms_code":"FB82.1","chapters_all":["15"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#67016273","existing":["osteochondrosis of phalanges [Thiemann syndrome]"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"1446309782","title":"Osteochondrosis or osteochondritis dissecans"}],"mondo":{"MONDO:0008142":{"label":"Thiemann disease, familial form","cf":{"rel":"confirmed"}}},"proposals":[{"id":"MSY-PKCCEJUDBX","text":"aseptic necrosis of phalangeal epiphyses","mondo":"MONDO:0008142","source":"Orphanet","source_id":"Orphanet:3314","confidence":4,"cf":{"rel":"nomatch","target":"","target_title":"","level":"NoMatch","score":0.0},"variants":[]},{"id":"MSY-NO5LA5IYYC","text":"osteochondritis of phalangeal epiphyses","mondo":"MONDO:0008142","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"unrelated","target":"1972643908","target_title":"Epiphysitis","level":"FlexiMatch","score":0.577},"variants":[]},{"id":"MSY-OKNWC6QJ7H","text":"Osteochondrosis of phalangeal epiphyses","mondo":"MONDO:0008142","source":"Orphanet","source_id":"Orphanet:3314","confidence":4,"cf":{"rel":"unrelated","target":"1972643908","target_title":"Epiphysitis","level":"FlexiMatch","score":0.435},"variants":[]}],"rejected":[]}]};
+</script>
+<script>
+// Review tool v4: one script for every page. build_site.py inlines it with the chapter index
+// (window.INDEX) and, on a chapter page, that chapter's bundle (window.BUNDLE).
+// Pages: index.html (#chapters, #ack, #me, #admin, #welcome, #invite=<token>) and <chapter>.html.
+'use strict';
+
+const API = new URLSearchParams(location.search).get('api') || window.API_BASE;
+const IDX = window.INDEX, B = window.BUNDLE || null;
+const SESSION_KEY = 'v4session', CREDITS_KEY = 'v4credits';
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = {
+  get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+  set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch { /* private mode */ } },
+};
+const chTitle = tag => (IDX.chapters.find(c => c.tag === tag) || {}).title || '';
+const chLabel = tag => { const c = IDX.chapters.find(x => x.tag === tag); return c ? `${c.chapter} — ${c.title}` : tag; };
+const orcidLink = o => o ? `<a href="https://orcid.org/${esc(o)}" target="_blank" rel="noopener"><span class="idicon">iD</span> https://orcid.org/${esc(o)}</a>` : '';
+const browserUrl = id => `https://icd.who.int/browse/2026-01/foundation/en#${id}`;
+const homeUrl = hash => 'index.html' + (hash ? '#' + hash : '');
+
+async function api(path, opts = {}) {
+  const token = store.get(SESSION_KEY);
+  const res = await fetch(API + path, { method: opts.method || 'GET',
+    headers: { ...(token ? { Authorization: 'Bearer ' + token } : {}), ...(opts.body ? { 'Content-Type': 'application/json' } : {}) },
+    body: opts.body ? JSON.stringify(opts.body) : undefined });
+  if (opts.raw) { if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText); return res; }
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401 && token) { store.set(SESSION_KEY, null); ME = null; }
+  if (!res.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
+async function download(path, fallbackName) {
+  const res = await api(path, { raw: true });
+  const name = (res.headers.get('Content-Disposition') || '').match(/filename="([^"]+)"/);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(await res.blob());
+  a.download = name ? name[1] : fallbackName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function signIn(afterHash, invite) {
+  const back = location.href.split('#')[0].replace(/\?.*$/, '') + (afterHash ? '#' + afterHash : '');
+  location.href = `${API}/auth/login?return=${encodeURIComponent(back)}${invite ? '&invite=' + encodeURIComponent(invite) : ''}`;
+}
+async function signOut() {
+  try { await api('/auth/logout', { method: 'POST' }); } catch { /* already gone */ }
+  store.set(SESSION_KEY, null); ME = null; location.href = homeUrl('chapters');
+}
+function flash(el, text, kind) { if (el) { el.textContent = text; el.className = 'status ' + (kind || ''); } }
+
+// ── state ────────────────────────────────────────────────────────────────────
+let ME = null;            // GET /api/me
+let route = 'chapters';
+let INVITE = null;
+const isStaff = () => ME && (ME.role === 'admin' || ME.role === 'coadmin');
+const isAdmin = () => ME && ME.role === 'admin';
+const needsWelcome = () => ME && (!ME.person.consent_at || ME.person.withdrawn_at);
+
+function readHash() {
+  const parts = Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(p => {
+    const i = p.indexOf('='); return i < 0 ? [p, ''] : [p.slice(0, i), decodeURIComponent(p.slice(i + 1))];
+  }));
+  if (parts.session) {                       // just back from ORCID sign-in: keep the token, clean the URL
+    store.set(SESSION_KEY, parts.session);
+    delete parts.session;
+    history.replaceState(null, '', location.pathname + location.search + (Object.keys(parts).length ? '#' + Object.keys(parts).join('&') : ''));
+  }
+  if ('invite' in parts) INVITE = parts.invite;
+  const r = Object.keys(parts).find(k => ['chapters', 'ack', 'me', 'admin', 'welcome'].includes(k));
+  route = r || (INVITE ? 'invite' : 'chapters');
+}
+
+// ── shell ────────────────────────────────────────────────────────────────────
+function renderShell() {
+  const links = [[homeUrl('chapters'), 'Chapters', !B && route === 'chapters']];
+  if (ME) (ME.chapters || []).filter(c => c.status === 'active').forEach(c =>
+    links.push([c.chapter + '.html', 'Review ' + chLabel(c.chapter).split(' — ')[0], B && B.tag === c.chapter]));
+  if (ME) links.push([homeUrl('me'), 'My status', !B && route === 'me']);
+  links.push([homeUrl('ack'), 'Acknowledgements', !B && route === 'ack']);
+  if (isStaff()) links.push([homeUrl('admin'), 'Admin', !B && route === 'admin']);
+  $('nav').innerHTML = links.map(([h, l, on]) => `<a href="${h}" class="${on ? 'on' : ''}">${esc(l)}</a>`).join('');
+  $('hdrRight').innerHTML = `<span class="chip">Release ${esc(IDX.release)}</span>` + (ME
+    ? `<span class="chip">${esc(ME.person.name || ME.orcid)} · <span class="idicon">iD</span>${ME.role !== 'reviewer' ? ' · ' + ME.role : ''}</span>
+       <button class="btn small" id="signOut">Sign out</button>`
+    : `<button class="orcid-btn" id="signIn"><span class="idicon">iD</span> Sign in with ORCID</button>`);
+  if ($('signIn')) $('signIn').onclick = () => signIn(B ? '' : route);
+  if ($('signOut')) $('signOut').onclick = signOut;
+}
+
+async function boot() {
+  readHash();
+  if (store.get(SESSION_KEY)) {
+    try { ME = await api('/api/me'); } catch (e) { ME = null; }
+  }
+  // reviewers confirm details and consent first; admins are not reviewers unless they choose to be
+  if (!B && ME && ME.role === 'reviewer' && needsWelcome() && route !== 'ack') route = 'welcome';
+  renderShell();
+  if (B) return Review.start();
+  const view = { chapters: viewChapters, ack: viewAck, me: viewMe, admin: Admin.start, welcome: viewWelcome, invite: viewInvite }[route];
+  await (view || viewChapters)();
+}
+window.addEventListener('hashchange', boot);
+
+// ── chapters ─────────────────────────────────────────────────────────────────
+function viewChapters() {
+  const mine = Object.fromEntries((ME ? ME.chapters : []).map(c => [c.chapter, c]));
+  $('view').innerHTML = `<h1>Chapters</h1>
+  <p class="lead">Synonyms proposed from the Mondo Disease Ontology (${esc(IDX.inputs.mondo)}) for the ICD-11 Foundation
+    ${esc(IDX.inputs.icd11_foundation)}, release ${esc(IDX.release)}. Review is by invitation to a dedicated group of clinicians;
+    each reviewer is assigned a full chapter. Anyone can read the proposals.</p>
+  <table class="grid"><tr><th>Chapter</th><th>Title</th><th>Entities</th><th>Proposed synonyms</th>${ME ? '<th>You</th>' : ''}</tr>
+  ${IDX.chapters.map(c => `<tr><td><a href="${c.tag}.html">${esc(c.chapter)}</a></td><td><a href="${c.tag}.html">${esc(c.title)}</a></td>
+     <td>${c.entities.toLocaleString()}</td><td>${c.synonyms.toLocaleString()}</td>
+     ${ME ? `<td class="small">${mine[c.tag] ? (mine[c.tag].status === 'active' ? `reviewing · ${mine[c.tag].decided} / ${c.synonyms}` : mine[c.tag].status) : ''}</td>` : ''}</tr>`).join('')}
+  </table>`;
+}
+
+// ── invitation landing ───────────────────────────────────────────────────────
+function viewInvite() {
+  $('view').innerHTML = `<h1>You're invited to review</h1>
+    <p class="lead">Sign in with your ORCID iD to accept the invitation. You'll then confirm your details and consent before reviewing.</p>
+    <button class="orcid-btn" id="acceptInvite" style="border:1px solid var(--line)"><span class="idicon">iD</span> Sign in with ORCID and accept</button>`;
+  $('acceptInvite').onclick = () => signIn('welcome', INVITE);
+}
+
+// ── first sign-in: details and consent ───────────────────────────────────────
+const CONSENT = `<p>By taking part in this review you agree that:</p><ul>
+  <li>We store your ORCID iD, name, affiliation, email, specialty and every review decision and comment you make, with dates.</li>
+  <li>If the project lead credits your contribution, your name, ORCID iD and affiliation are listed publicly on the Acknowledgements page.
+      Your email, specialty, comments and individual decisions are never shown publicly.</li>
+  <li>Your name, ORCID iD and affiliation may be used in future publications and in the submission of accepted synonyms to WHO.</li>
+  <li>You can withdraw at any time from "My status". You are then removed from the public page and author lists; your decisions remain in the review record.</li></ul>`;
+
+function profileFields(p, pre) {
+  const v = k => esc(p[k] || pre[k] || '');
+  return `<label>Name</label><div><input type="text" id="f_name" value="${v('name')}"><div class="help">From ORCID; edit it to the form you use on publications.</div></div>
+    <label>Institution</label><div><input type="text" id="f_institution" value="${v('institution')}"></div>
+    <label>Country</label><div><input type="text" id="f_country" value="${v('country')}"></div>
+    <label>ROR ID</label><div><input type="text" id="f_ror" value="${v('ror')}" placeholder="https://ror.org/…  (recommended)">
+      <div class="help">Recommended: find your institution's ROR ID at <a href="https://ror.org" target="_blank" rel="noopener">ror.org</a>.
+      Your name and affiliation may be used for future publications arising from this review.</div></div>
+    <label>Email</label><div><input type="email" id="f_email" value="${v('email')}"><div class="help">Required, so we can contact you about the review and authorship. Never shown publicly.</div></div>`;
+}
+const readProfile = () => Object.fromEntries(['name', 'institution', 'country', 'ror', 'email', 'specialty', 'note']
+  .filter(k => $('f_' + k)).map(k => [k, $('f_' + k).value]));
+
+function viewWelcome() {
+  if (!ME) return viewChapters();
+  const p = ME.person, pre = ME.prefill || {};
+  const active = ME.chapters.filter(c => c.status === 'active');
+  $('view').innerHTML = `<h1>Welcome — confirm your details</h1>
+    <p class="lead">${active.length ? `You are invited to review ${active.map(c => '<b>Chapter ' + esc(chLabel(c.chapter)) + '</b>').join(', ')}.`
+      : 'You are signed in, but not assigned to a chapter yet. You can request one below; the project lead approves requests.'}</p>
+    <div class="card"><div class="form">
+      <label>ORCID iD</label><div style="padding-top:5px">${orcidLink(ME.orcid)} <span class="pill ok">verified by sign-in</span></div>
+      ${profileFields(p, pre)}
+      <label>Clinical specialty</label><input type="text" id="f_specialty" value="${esc(p.specialty || '')}" placeholder="e.g. infectious diseases">
+      <label>Other chapters</label><div><select multiple size="5" id="f_requests">${IDX.chapters.filter(c => !ME.chapters.some(x => x.chapter === c.tag))
+        .map(c => `<option value="${c.tag}">${esc(c.chapter)} — ${esc(c.title)}</option>`).join('')}</select>
+        <div class="help">Optional: request more chapters (Ctrl/Cmd-click for several); the project lead approves.</div></div>
+      <label>Note</label><textarea rows="2" id="f_note" placeholder="Optional: relevant experience">${esc(p.note || '')}</textarea>
+      <label>Consent</label><div class="consent">${CONSENT}<label style="display:flex;gap:8px;font-weight:600;margin-top:8px"><input type="checkbox" id="f_consent"> I agree</label></div>
+      <span></span><div><button class="btn primary" id="save">Save and continue</button><span class="status" id="st"></span></div>
+    </div></div>`;
+  $('save').onclick = async () => {
+    if (!$('f_consent').checked) return flash($('st'), 'Please tick the consent box.', 'err');
+    try {
+      ME = await api('/api/me', { method: 'PUT', body: { ...readProfile(), consent: true,
+        request_chapters: [...$('f_requests').selectedOptions].map(o => o.value) } });
+      const first = ME.chapters.find(c => c.status === 'active');
+      location.href = first ? first.chapter + '.html' : homeUrl('me');
+    } catch (e) { flash($('st'), e.message, 'err'); }
+  };
+}
+
+// ── my status ────────────────────────────────────────────────────────────────
+function viewMe() {
+  if (!ME) { $('view').innerHTML = '<p class="lead">Sign in with ORCID to see your status.</p>'; return; }
+  const p = ME.person;
+  $('view').innerHTML = `<h1>My status</h1><p class="lead">Only you and the project admins can see this page.</p>
+  <div class="card"><h2 style="margin-top:0">Profile</h2><div class="form">
+    <label>ORCID iD</label><div style="padding-top:5px">${orcidLink(ME.orcid)}</div>
+    ${profileFields(p, {})}
+    <label>Clinical specialty</label><input type="text" id="f_specialty" value="${esc(p.specialty || '')}">
+    <span></span><div><button class="btn primary" id="save">Save</button><span class="status" id="st">Changes go live immediately and are logged.</span></div>
+  </div></div>
+  <div class="card"><h2 style="margin-top:0">Chapters</h2><table class="grid"><tr><th>Chapter</th><th>Status</th><th>Your decisions</th><th>Public credit</th></tr>
+    ${ME.chapters.map(c => `<tr><td>${c.status === 'active' ? `<a href="${c.chapter}.html">${esc(chLabel(c.chapter))}</a>` : esc(chLabel(c.chapter))}</td>
+      <td>${esc(c.status)}</td><td>${c.decided} / ${(IDX.chapters.find(x => x.tag === c.chapter) || {}).synonyms || '?'}</td>
+      <td>${c.credited ? '<span class="pill ok">credited</span>' : '<span class="pill grey">not yet credited</span>'}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">No chapters yet.</td></tr>'}
+  </table>
+  <p class="row" style="margin-top:10px"><select class="btn" id="reqSel">${IDX.chapters.filter(c => !ME.chapters.some(x => x.chapter === c.tag))
+    .map(c => `<option value="${c.tag}">${esc(c.chapter)} — ${esc(c.title)}</option>`).join('')}</select>
+    <button class="btn small" id="reqBtn">Request this chapter</button><span class="status" id="reqSt"></span></p></div>
+  <div class="card"><h2 style="margin-top:0">Consent and data</h2>
+    <p>${p.withdrawn_at ? `You withdrew on ${esc(p.withdrawn_at.slice(0, 10))}. <a href="${homeUrl('welcome')}">Give consent again</a>`
+      : `Consent given ${esc((p.consent_at || '').slice(0, 10))}. <button class="btn small" id="withdraw">Withdraw consent</button>`}</p>
+    <p><button class="btn small" id="dlCsv">Download my data (CSV)</button> <button class="btn small" id="dlJson">Download my data (JSON)</button></p></div>`;
+  $('save').onclick = async () => {
+    try { ME = await api('/api/me', { method: 'PUT', body: readProfile() }); flash($('st'), 'Saved.', 'ok'); renderShell(); }
+    catch (e) { flash($('st'), e.message, 'err'); }
+  };
+  $('reqBtn').onclick = async () => {
+    try { await api('/api/me/requests', { method: 'POST', body: { chapter: $('reqSel').value } }); ME = await api('/api/me'); viewMe(); }
+    catch (e) { flash($('reqSt'), e.message, 'err'); }
+  };
+  if ($('withdraw')) $('withdraw').onclick = async () => {
+    if (!window.confirm('Withdraw consent? You will be removed from the public page and author lists; your decisions stay in the review record.')) return;
+    await api('/api/me/withdraw', { method: 'POST' }); ME = await api('/api/me'); viewMe();
+  };
+  $('dlCsv').onclick = () => download('/api/me/export?format=csv', 'my-review-decisions.csv');
+  $('dlJson').onclick = () => download('/api/me/export?format=json', 'my-review-data.json');
+}
+
+// ── acknowledgements (public) ────────────────────────────────────────────────
+async function viewAck() {
+  $('view').innerHTML = `<h1>Acknowledgements: expert reviewers</h1>
+    <div class="note">This page credits the expert reviewers only. The pipeline team, data sources and tools are credited in the
+      <a href="https://github.com/tannerzhang/foundation-synonym-enrichment/wiki" target="_blank" rel="noopener">project wiki</a>.</div>
+    <div id="ackBody" class="muted small">Loading…</div>`;
+  let data, live = true;
+  try {
+    data = await api('/api/credits');
+    store.set(CREDITS_KEY, JSON.stringify(data));
+  } catch {
+    live = false;
+    data = JSON.parse(store.get(CREDITS_KEY) || 'null');
+    if (!data) data = await fetch('data/credits.json').then(r => r.json()).catch(() => null);
+  }
+  if (!data) { $('ackBody').innerHTML = '<div class="note warn">The review server cannot be reached and no saved list is available.</div>'; return; }
+  $('ackBody').className = '';
+  $('ackBody').innerHTML = (live ? '<p class="small muted">Loaded live from the review server.</p>'
+      : `<div class="note warn">The review server can't be reached. Showing the last saved list, as of ${esc(data.as_of.slice(0, 10))}.</div>`) +
+    (data.chapters.length ? data.chapters.map(ch => `<div class="ackch"><h3>Chapter ${esc(chLabel(ch.chapter))}</h3>
+      ${ch.people.map(p => `<div class="person"><div><b>${esc(p.name)}</b></div><div>${orcidLink(p.orcid)}</div>
+        <div>${esc([p.institution, p.country].filter(Boolean).join(', '))}</div></div>`).join('')}</div>`).join('')
+      : '<p class="muted">No reviewers are credited yet.</p>');
+}
+
+// ── chapter review page ──────────────────────────────────────────────────────
+const CF_REL = {
+  confirmed: ['✓ confirmed', 'CodeFusion coded this term to the pipeline’s entity.'],
+  broader: ['↑ broader', 'CodeFusion’s target is broader — usually acceptable.'],
+  narrower: ['↓ narrower', 'CodeFusion’s target is more specific — usually acceptable.'],
+  sibling: ['↔ sibling', 'CodeFusion placed the term on a sibling entity — check which is right.'],
+  unrelated: ['⚠ unrelated', 'CodeFusion placed the term on a different branch — review carefully.'],
+  nomatch: ['∅ no match', 'CodeFusion could not place this term (below its match threshold) — weak term.'],
+  rootfallback: ['∅ no specific match', 'CodeFusion fell back to a broad container (e.g. a chapter root) — no specific entity.'],
+};
+const contested = rel => ['unrelated', 'nomatch', 'rootfallback'].includes(rel);
+const cfPill = cf => `<span class="cf ${cf.rel}" title="${esc(CF_REL[cf.rel][1])}${cf.level ? ' MatchLevel ' + esc(cf.level) + ', score ' + cf.score + '.' : ''}">${CF_REL[cf.rel][0]}</span>`;
+const meter = n => `<span class="meter" title="Source confidence ${n}/5: number and authority of upstream sources">${'●'.repeat(n)}<i>${'●'.repeat(5 - n)}</i></span>`;
+const DECISION_BUTTONS = [['accept', '✓ Accept'], ['reject', '✗ Reject'], ['flag', '⚠ Flag'], ['skip', '⏭ Skip'], ['narrower', '↓ Accept as narrower term'], ['edit', '✎ Edit wording…']];
+
+const Review = {
+  sel: 0, filter: 'all', sort: 'conf', cfOn: true, about: false, mine: {}, locked: new Set(), closed: false, canEdit: false,
+
+  async start() {
+    const asg = ME && ME.chapters.find(c => c.chapter === B.tag);
+    this.canEdit = !!(asg && asg.status === 'active' && ME.person.consent_at && !ME.person.withdrawn_at);
+    if (this.canEdit) {
+      try {
+        const d = await api('/api/decisions?chapter=' + B.tag);
+        this.mine = d.decisions; this.locked = new Set(d.locked); this.closed = d.closed;
+        if (d.closed) this.canEdit = false;
+      } catch (e) { this.banner = 'Could not load your decisions: ' + e.message; this.canEdit = false; }
+    }
+    const want = location.hash.match(/entity=(\d+)/);
+    if (want) this.sel = Math.max(0, B.entities.findIndex(e => e.id === want[1]));
+    this.render();
+  },
+  severity(e) {
+    const rels = [...Object.values(e.mondo).map(m => m.cf.rel), ...e.proposals.map(p => p.cf.rel)].filter(r => r !== 'confirmed');
+    return !rels.length ? 0 : rels.some(contested) ? 2 : 1;
+  },
+  decided(p) { return !!(this.mine[p.id] && this.mine[p.id].decision); },
+  visible() {
+    return B.entities.map((e, i) => ({ e, i })).filter(({ e }) =>
+      this.filter === 'open' ? e.proposals.some(p => !this.decided(p))
+      : this.filter === 'cf' ? this.severity(e) > 0
+      : this.filter === 'flag' ? e.proposals.some(p => (this.mine[p.id] || {}).decision === 'flag')
+      : true);
+  },
+  render() {
+    const e = B.entities[this.sel];
+    const all = B.entities.flatMap(x => x.proposals);
+    const nDone = all.filter(p => this.decided(p)).length;
+    const role = !ME ? `<div class="note">Read-only. Reviewers invited to this chapter <a href="#" id="signLink">sign in with ORCID</a> to record decisions.</div>`
+      : this.closed ? '<div class="note warn">This chapter is closed; decisions are locked.</div>'
+      : !this.canEdit ? `<div class="note">Read-only: you are not an active reviewer of this chapter${needsWelcome() ? ' (consent is needed first — see <a href="' + homeUrl('welcome') + '">Welcome</a>)' : ''}.</div>` : '';
+    const list = this.visible().map(({ e: x, i }) => {
+      const sev = this.cfOn ? this.severity(x) : 0, done = x.proposals.filter(p => this.decided(p)).length;
+      return `<div class="item ${i === this.sel ? 'sel' : ''}" data-i="${i}">
+        <span class="dot ${done === 0 ? '' : done === x.proposals.length ? 'done' : 'part'}"></span>
+        ${sev ? `<span class="cfdot ${sev === 2 ? 'sev2' : ''}" title="CodeFusion ${sev === 2 ? 'contests a mapping or synonym' : 'diverges (related entity)'}"></span>` : ''}
+        <div class="lbl">${esc(x.title)}<div class="sub">${esc(Object.values(x.mondo).map(m => m.label).join('; '))} · ${done}/${x.proposals.length}</div></div></div>`;
+    }).join('') || '<div class="item muted">No entities match this filter.</div>';
+    const props = [...e.proposals].sort(this.sort === 'alpha' ? (a, b) => a.text.localeCompare(b.text)
+      : (a, b) => b.confidence - a.confidence || a.text.localeCompare(b.text));
+    $('view').innerHTML = `${this.banner ? `<div class="note warn">${esc(this.banner)}</div>` : ''}
+    <div class="row" style="justify-content:space-between"><div><h1>Chapter ${esc(B.chapter)} — ${esc(B.chapter_title)}</h1>
+      <p class="lead">${ME && this.canEdit ? `Your decisions: ${nDone} of ${all.length}. Saved automatically. Your review is independent: other reviewers' decisions are never shown to you.`
+        : `${B.entities.length} entities, ${all.length} proposed synonyms.`}</p></div>
+      <div class="row">
+        <label class="switch"><input type="checkbox" id="cfToggle" ${this.cfOn ? 'checked' : ''}> CodeFusion overlay</label>
+        <button class="btn small" id="cfAboutBtn">ⓘ About CodeFusion</button>
+        <select class="btn" id="filterSel">${[['all', 'All entities'], ['open', 'Not fully decided by me'], ['cf', 'CodeFusion disagrees'], ['flag', 'Flagged by me']]
+          .map(([k, l]) => `<option value="${k}" ${this.filter === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <select class="btn" id="sortSel"><option value="conf" ${this.sort === 'conf' ? 'selected' : ''}>Sort: source confidence</option><option value="alpha" ${this.sort === 'alpha' ? 'selected' : ''}>Sort: A–Z</option></select>
+      </div></div>${role}
+    <div class="review"><div class="elist">${list}</div><div>
+      <div class="card ehead">
+        <div class="uri">Foundation <span class="mono">http://id.who.int/icd/entity/${esc(e.id)}</span>${e.mms_code ? ' · MMS <b>' + esc(e.mms_code) + '</b>' : ''} ·
+          <a href="${esc(e.browser || browserUrl(e.id))}" target="_blank" rel="noopener">ICD-11 browser ↗</a></div>
+        <div class="title">${esc(e.title)}</div>
+        ${e.fsn && e.fsn !== e.title ? `<div class="small muted">Fully specified name: ${esc(e.fsn)}</div>` : ''}
+        <div class="def">${esc(e.definition) || '<span class="muted">No definition in the Foundation.</span>'}</div>
+        <div>${Object.entries(e.mondo).map(([c, m]) => `<span class="mondo">${esc(c)}</span>${esc(m.label)}`).join(' &nbsp; ')}
+          ${e.chapters_all.length > 1 ? ` <span class="pill info" title="Foundation polyhierarchy">also under chapters ${esc(e.chapters_all.filter(c => 'ch' + c !== B.tag).join(', '))}</span>` : ''}</div>
+        <div class="ctx">
+          <div class="box"><b>Parents</b>${e.parents.map(p => `<a href="${browserUrl(p.id)}" target="_blank" rel="noopener">${esc(p.title)}</a>`).join('<br>') || '<span class="muted">none</span>'}</div>
+          <div class="box"><b>Existing ICD-11 synonyms (${e.existing.length})</b>${e.existing.map(esc).join('<br>') || '<span class="muted">none</span>'}</div>
+          <div class="box"><b>Narrower / inclusions / exclusions</b>${[...e.narrower, ...e.inclusions].map(esc).join('<br>') || '<span class="muted">none</span>'}
+            ${e.exclusions.length ? '<br><i>Excl.:</i> ' + e.exclusions.map(esc).join(', ') : ''}</div>
+        </div>
+        ${this.cfOn ? Object.entries(e.mondo).map(([c, m]) => m.cf.rel === 'confirmed'
+          ? `<div class="cfbanner ok"><span class="cf confirmed">CodeFusion: aligned</span> Mapping mode routes ${esc(c)} (label + synonyms) to this entity.</div>`
+          : `<div class="cfbanner bad">${cfPill(m.cf)}<span>CodeFusion (mapping mode) routes ${esc(c)} to <b>${esc(m.cf.target_title || m.cf.target || 'no entity')}</b>
+              ${m.cf.target ? `(<a href="${browserUrl(m.cf.target)}" target="_blank" rel="noopener">${esc(m.cf.target)} ↗</a>)` : ''}, not to this entity —
+              MappingMatchLevel <b>${esc(m.cf.level)}</b>, score ${m.cf.score}. ${esc(CF_REL[m.cf.rel][1])}</span></div>`).join('') : ''}
+      </div>
+      <div class="row" style="margin:4px 0 2px"><b>Proposed synonyms (${e.proposals.length})</b>
+        ${this.canEdit ? '<span class="small muted">· Quick: </span><button class="btn small" data-bulk="accept">Accept all</button><button class="btn small" data-bulk="skip">Skip all</button>' : ''}</div>
+      ${this.cfOn ? `<div class="cflegend"><b>CodeFusion</b> — WHO’s ICD-11 coder, run independently as a second opinion (version ${esc(B.inputs.codefusion)}); each synonym is coded on its own.
+          <a href="#" id="cfAboutLink">ⓘ how to read these verdicts</a><br>
+          ${['confirmed', 'broader', 'narrower', 'sibling', 'unrelated', 'nomatch'].map(r => `<span class="cf ${r}">${CF_REL[r][0]}</span>`).join(' ')}
+          <span class="muted"> — a term coding to a parent or sibling on its own is expected, not an error; ⚠ unrelated and ∅ no match deserve a closer look.</span></div>` : ''}
+      ${props.map(p => this.card(p)).join('')}
+      <details class="card" ${e.rejected.length ? '' : ''}><summary><b>Not proposed by the pipeline (${e.rejected.length})</b>
+        <span class="small muted">— for context; reasons from the filters</span></summary><div class="rej" style="margin-top:8px">
+        ${e.rejected.map(r => `<div>${esc(r.text)}</div><div class="r">${esc(r.reason)}${r.detail ? ': ' + esc(r.detail) : ''}</div>`).join('')}</div></details>
+    </div></div>${this.about ? this.aboutBox() : ''}`;
+    this.bind();
+  },
+  card(p) {
+    const D = this.mine[p.id] || {}, locked = this.locked.has(p.id) || !this.canEdit;
+    const cls = !D.decision ? '' : D.decision === 'reject' ? 'rejected' : D.decision === 'flag' ? 'flagged' : 'decided';
+    const shown = ['variant', 'edit'].includes(D.decision) && D.final_text ? D.final_text : p.text;
+    const dis = locked ? 'disabled' : '';
+    return `<div class="syn ${cls} ${this.cfOn && contested(p.cf.rel) ? 'contested' : ''} ${this.locked.has(p.id) ? 'locked' : ''}" data-id="${p.id}">
+      <div class="text">${esc(shown)}${shown !== p.text ? `<span class="small muted"> (proposed: ${esc(p.text)})</span>` : ''}
+        ${this.locked.has(p.id) ? ' <span class="pill grey">final — locked</span>' : ''}<span class="status" data-st></span></div>
+      <div class="meta">${meter(p.confidence)}<span>${esc(p.source.replace('Mondo (no upstream xref)', 'Mondo only'))}</span>
+        <span class="mono">${esc(p.source_id)}</span><span class="mono">${esc(p.mondo)}</span>
+        ${this.cfOn ? `<span>CodeFusion ${cfPill(p.cf)}</span>${p.cf.target ? `<span>→ <a href="${browserUrl(p.cf.target)}" target="_blank" rel="noopener">${esc(p.cf.target_title || p.cf.target)} ↗</a> (score ${p.cf.score})</span>` : ''}` : ''}
+        <span class="mono" title="Stable ID: same entity + text keeps this ID across releases">${p.id}</span></div>
+      ${p.variants.length ? `<div class="variants">Equivalent variants the pipeline did not pick${locked ? '' : ' (click to accept instead; click again to undo)'}: ${p.variants.map(v =>
+        `<button data-variant="${esc(v)}" ${dis} class="${D.decision === 'variant' && D.final_text === v ? 'chosen' : ''}">⇄ ${esc(v)}</button>`).join('')}</div>` : ''}
+      ${!ME || !this.canEdit && !D.decision ? '' : `<div class="decide">
+        ${DECISION_BUTTONS.map(([k, l]) => `<button class="${k} ${D.decision === k ? 'on' : ''}" data-d="${k}" ${dis}>${l}</button>`).join('')}
+        ${D.decision && !locked ? '<button data-clear title="Remove my decision">↺ Clear</button>' : ''}</div>
+      <div class="extra">
+        ${D.decision === 'reject' ? `<input data-f="reason" ${dis} placeholder="Reason (recommended, optional)" value="${esc(D.reason || '')}">` : ''}
+        ${D.decision === 'edit' ? `<input data-f="final_text" ${dis} placeholder="Your wording (goes to the admin for review)" value="${esc(D.final_text || '')}">` : ''}
+        <input data-f="comment" ${dis} placeholder="Comment — visible to admins only" value="${esc(D.comment || '')}">
+      </div>`}</div>`;
+  },
+  async save(id, D, card) {
+    const st = card && card.querySelector('[data-st]');
+    flash(st, 'saving…');
+    try {
+      await api('/api/decisions/' + id, { method: 'PUT', body: D.decision ? D : { decision: '' } });
+      if (D.decision) this.mine[id] = D; else delete this.mine[id];
+      flash(st, 'saved', 'ok');
+      return true;
+    } catch (e) { flash(st, e.message, 'err'); return false; }
+  },
+  bind() {
+    const view = $('view');
+    if ($('signLink')) $('signLink').onclick = ev => { ev.preventDefault(); signIn(''); };
+    view.querySelectorAll('.elist .item[data-i]').forEach(el => el.onclick = () => { this.sel = +el.dataset.i; this.render(); window.scrollTo(0, 0); });
+    $('cfToggle').onchange = ev => { this.cfOn = ev.target.checked; this.render(); };
+    $('filterSel').onchange = ev => { this.filter = ev.target.value; this.render(); };
+    $('sortSel').onchange = ev => { this.sort = ev.target.value; this.render(); };
+    const openAbout = ev => { ev.preventDefault(); this.about = true; this.render(); };
+    $('cfAboutBtn').onclick = openAbout;
+    if ($('cfAboutLink')) $('cfAboutLink').onclick = openAbout;
+    if ($('cfModal')) {
+      $('cfClose').onclick = () => { this.about = false; this.render(); };
+      $('cfModal').onclick = ev => { if (ev.target.id === 'cfModal') { this.about = false; this.render(); } };
+    }
+    view.querySelectorAll('.syn').forEach(card => {
+      const id = card.dataset.id, cur = () => ({ ...(this.mine[id] || {}) });
+      const commit = async D => { if (await this.save(id, D, card)) this.render(); };
+      card.querySelectorAll('[data-d]').forEach(b => b.onclick = () => {
+        const D = cur(), d = b.dataset.d;
+        if (D.decision === d) return commit({ decision: '' });          // clicking the active decision removes it
+        if (d === 'edit') { this.mine[id] = { ...D, decision: 'edit', final_text: '' }; return this.render(); }  // saved once wording is typed
+        commit({ decision: d, reason: d === 'reject' ? D.reason : null, comment: D.comment });
+      });
+      card.querySelectorAll('[data-variant]').forEach(b => b.onclick = () => {
+        const D = cur(), v = b.dataset.variant;
+        commit(D.decision === 'variant' && D.final_text === v ? { decision: '' } : { decision: 'variant', final_text: v, comment: D.comment });
+      });
+      const clear = card.querySelector('[data-clear]');
+      if (clear) clear.onclick = () => commit({ decision: '' });
+      card.querySelectorAll('[data-f]').forEach(inp => inp.onchange = async () => {
+        const D = { ...cur(), [inp.dataset.f]: inp.value };
+        if (!D.decision) return flash(card.querySelector('[data-st]'), 'Choose a decision first; the comment is saved with it.', 'err');
+        if (D.decision === 'edit' && !D.final_text) return;
+        await this.save(id, D, card);
+      });
+    });
+    view.querySelectorAll('[data-bulk]').forEach(b => b.onclick = async () => {
+      for (const p of B.entities[this.sel].proposals) {
+        if (!this.locked.has(p.id)) await this.save(p.id, { decision: b.dataset.bulk, comment: (this.mine[p.id] || {}).comment }, null);
+      }
+      this.render();
+    });
+  },
+  aboutBox() {
+    return `<div class="modal" id="cfModal"><div class="box">
+      <div class="row" style="justify-content:space-between"><h2 style="margin:0">ⓘ About the CodeFusion overlay</h2><button class="btn small" id="cfClose">Close</button></div>
+      <p><b>CodeFusion</b> is WHO’s ICD-11 coding and mapping engine. Here it is run independently (version ${esc(B.inputs.codefusion)},
+        local Docker) as a second opinion on the pipeline’s Mondo → ICD-11 proposals. <a href="https://icd.who.int/docs/codefusion/en/" target="_blank" rel="noopener">Documentation ↗</a></p>
+      <h3>Two modes, two levels</h3>
+      <p><b>Mapping mode</b> takes the Mondo concept’s label and synonyms together: does CodeFusion route the whole concept to the entity the pipeline used? → the banner under the entity.<br>
+      <b>Coding mode</b> codes each synonym on its own: where does that term land by itself? → the label on each synonym.</p>
+      <h3>Concept verdict</h3>
+      <p><b>Aligned / misaligned</b> depends only on whether CodeFusion picked the same entity. <b>MappingMatchLevel</b> (GoodMatch › OtherMatch ›
+        ConflictingGoodMatch › NoMatch) is CodeFusion’s confidence, shown alongside. A confident GoodMatch that still disagrees is the strongest signal.</p>
+      <h3>Synonym verdicts</h3>
+      <p>${Object.keys(CF_REL).map(r => `<span class="cf ${r}">${CF_REL[r][0]}</span> ${esc(CF_REL[r][1])}`).join('<br>')}</p>
+      <div class="keypt">A synonym coding to a parent or sibling on its own is expected, not an error. Only ⚠ unrelated and ∅ no match need real scrutiny.
+        Rows with those are tinted; the entity list shows an amber dot for related divergence and a red dot for a contested mapping or synonym.</div>
+    </div></div>`;
+  },
+};
+
+// ── admin ────────────────────────────────────────────────────────────────────
+const Admin = {
+  tab: 'roster', reveal: false, adjChapter: null,
+
+  async start() {
+    if (!isStaff()) { $('view').innerHTML = '<p class="lead">Admins only.</p>'; return; }
+    const tabs = [['roster', 'Roster'], ['progress', 'Progress'], ['adjudicate', 'Adjudication'], ['export', 'Exports'], ['log', 'Audit log'], ['settings', 'Settings']]
+      .filter(([k]) => isAdmin() || ['roster', 'progress', 'export', 'settings'].includes(k));
+    $('view').innerHTML = `<h1>Admin</h1><p class="lead">${isAdmin() ? 'Signed in as the project admin.'
+      : 'Co-admin: you can view the roster, counts and progress, and export author lists.'}</p>
+      <div class="tabs">${tabs.map(([k, l]) => `<button data-tab="${k}" class="${Admin.tab === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+      <div id="tabBody" class="muted small">Loading…</div>`;
+    $('view').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { Admin.tab = b.dataset.tab; Admin.start(); });
+    try { await Admin[Admin.tab](); } catch (e) { $('tabBody').innerHTML = `<div class="note warn">${esc(e.message)}</div>`; }
+  },
+  body(html) { const el = $('tabBody'); el.className = ''; el.innerHTML = html; return el; },
+  chapterOptions(sel) { return IDX.chapters.map(c => `<option value="${c.tag}" ${c.tag === sel ? 'selected' : ''}>${esc(c.chapter)} — ${esc(c.title)}</option>`).join(''); },
+
+  async roster() {
+    const r = await api('/api/admin/roster');
+    const dis = isAdmin() ? '' : 'disabled';
+    const requests = r.people.flatMap(p => p.assignments.filter(a => a.status === 'requested').map(a => ({ p, a })));
+    const el = this.body(`
+      ${isAdmin() ? `<div class="card"><b>Invite a reviewer</b><div class="row" style="margin-top:8px">
+        <select class="btn" id="invCh">${this.chapterOptions()}</select><input type="email" id="invEmail" class="btn" placeholder="their email (for your records)">
+        <button class="btn primary" id="invBtn">Create invitation link</button></div>
+        <div id="invOut" class="hidden" style="margin-top:8px"><input class="copy" id="invLink" readonly>
+        <div class="help small muted">Send this personal link to the reviewer. It works once: they sign in with ORCID through it and are assigned the chapter.</div></div></div>` : ''}
+      ${requests.map(({ p, a }) => `<div class="note warn"><b>Chapter request:</b> ${esc(p.name)} asks to review Chapter ${esc(chLabel(a.chapter))}.
+        <button class="btn small" data-req="${p.orcid}|${a.chapter}|active" ${dis}>Approve</button>
+        <button class="btn small" data-req="${p.orcid}|${a.chapter}|declined" ${dis}>Decline</button></div>`).join('')}
+      <table class="grid"><tr><th>Reviewer</th><th>Affiliation</th><th>Contact / specialty</th><th>Status</th><th>Chapters · public credit</th><th>Decisions</th><th>Last active</th></tr>
+      ${r.people.map(p => {
+        const counts = {}; p.counts.forEach(c => counts[c.decision] = (counts[c.decision] || 0) + c.n);
+        const status = p.withdrawn_at ? '<span class="pill bad">withdrawn</span>' : p.consent_at ? '<span class="pill ok">active</span>' : '<span class="pill info">no consent yet</span>';
+        return `<tr><td><b>${esc(p.name)}</b>${p.orcid === ME.orcid ? ' (you)' : ''}<br><span class="small">${orcidLink(p.orcid)}</span></td>
+          <td class="small">${esc([p.institution, p.country].filter(Boolean).join(', '))}${p.ror ? `<br><a href="${esc(p.ror)}" target="_blank" rel="noopener">ROR</a>` : ''}</td>
+          <td class="small">${esc(p.email || '')}<br>${esc(p.specialty || '')}${p.note ? `<br><i>${esc(p.note)}</i>` : ''}</td>
+          <td>${status}<div class="small muted">${p.consent_at ? 'consent ' + esc(p.consent_at.slice(0, 10)) : ''}</div></td>
+          <td class="small">${p.assignments.map(a => `<div class="switch">Ch ${esc(a.chapter.replace('ch', ''))} (${esc(a.status)}):
+              ${(p.counts.filter(c => c.chapter === a.chapter).reduce((s, c) => s + c.n, 0))}/${r.chapter_totals[a.chapter] || '?'}
+              ${a.status === 'active' ? `<input type="checkbox" data-credit="${p.orcid}|${a.chapter}" ${a.credited ? 'checked' : ''} ${dis || (!p.consent_at || p.withdrawn_at ? 'disabled' : '')}> credit` : ''}</div>`).join('') || '<span class="muted">none</span>'}</td>
+          <td class="small">${Object.entries(counts).map(([k, n]) => `${k} ${n}`).join(' · ') || '—'}</td>
+          <td class="small">${esc((p.last_active || '').slice(0, 10)) || '—'}</td></tr>`;
+      }).join('') || '<tr><td colspan="7" class="muted">Nobody has signed in yet.</td></tr>'}</table>
+      ${r.invitations.length ? `<h2>Invitations</h2><table class="grid"><tr><th>Created</th><th>Chapter</th><th>Sent to</th><th>Status</th></tr>
+        ${r.invitations.map(i => `<tr><td class="small">${esc(i.created_at.slice(0, 10))}</td><td>${esc(i.chapter)}</td><td class="small">${esc(i.email || '')}</td>
+          <td class="small">${i.used_by ? 'accepted ' + esc(i.used_at.slice(0, 10)) : `open · <input class="copy" readonly value="${esc(i.link)}" style="width:420px">`}</td></tr>`).join('')}</table>` : ''}`);
+    if ($('invBtn')) $('invBtn').onclick = async () => {
+      const j = await api('/api/admin/invitations', { method: 'POST', body: { chapter: $('invCh').value, email: $('invEmail').value } });
+      $('invOut').classList.remove('hidden'); $('invLink').value = j.link; $('invLink').select();
+    };
+    el.querySelectorAll('[data-req]').forEach(b => b.onclick = async () => {
+      const [orcid, chapter, status] = b.dataset.req.split('|');
+      await api('/api/admin/assignments', { method: 'PUT', body: { orcid, chapter, status } }); this.roster();
+    });
+    el.querySelectorAll('[data-credit]').forEach(c => c.onchange = async () => {
+      const [orcid, chapter] = c.dataset.credit.split('|');
+      await api('/api/admin/assignments', { method: 'PUT', body: { orcid, chapter, credited: c.checked } });
+    });
+  },
+
+  async progress() {
+    const r = await api('/api/admin/progress');
+    const pct = (n, d) => d ? Math.round(100 * n / d) + '%' : '—';
+    const el = this.body(`<div class="row" style="margin-bottom:10px"><label class="switch"><input type="checkbox" id="pubProg" ${r.public_progress ? 'checked' : ''} ${isAdmin() ? '' : 'disabled'}>
+        Show chapter progress on the public site</label><span class="small muted">Off for now; turn on later for tracking and acknowledgement.</span></div>
+      <table class="grid"><tr><th>Chapter</th><th>Synonyms</th><th>Reviewers</th><th>≥1 review</th><th>≥2 reviews</th><th>Conflicts</th><th>Final</th><th></th></tr>
+      ${r.chapters.map(c => `<tr><td>${esc(chLabel(c.chapter))}</td><td>${c.synonyms}</td><td>${c.reviewers}</td><td>${pct(c.reviewed1, c.synonyms)}</td>
+        <td>${pct(c.reviewed2, c.synonyms)}</td><td>${c.conflicts ? `<a href="#" data-adj="${c.chapter}">${c.conflicts}</a>` : 0}</td><td>${pct(c.final, c.synonyms)}</td>
+        <td>${isAdmin() ? `<button class="btn small" data-close="${c.chapter}|${c.closed ? 'reopen' : 'close'}">${c.closed ? 'Reopen' : 'Close chapter'}</button>` : (c.closed ? 'closed' : '')}</td></tr>`).join('')}</table>
+      <p class="small muted">Final = every active reviewer decided and all agree (at least two), or adjudicated. Closing a chapter locks its decisions; the pages stay readable.</p>`);
+    if (isAdmin()) $('pubProg').onchange = ev => api('/api/admin/settings', { method: 'PUT', body: { public_progress: ev.target.checked } });
+    el.querySelectorAll('[data-close]').forEach(b => b.onclick = async () => {
+      const [ch, what] = b.dataset.close.split('|');
+      if (what === 'close' && !window.confirm('Close ' + chLabel(ch) + '? Decisions will be locked.')) return;
+      await api('/api/admin/settings', { method: 'PUT', body: what === 'close' ? { close_chapter: ch } : { reopen_chapter: ch } }); this.progress();
+    });
+    el.querySelectorAll('[data-adj]').forEach(a => a.onclick = ev => { ev.preventDefault(); this.adjChapter = a.dataset.adj; this.tab = 'adjudicate'; this.start(); });
+  },
+
+  async adjudicate() {
+    const ch = this.adjChapter || IDX.chapters[0].tag;
+    const r = await api('/api/admin/conflicts?chapter=' + ch);
+    const letters = {};
+    const who = d => this.reveal ? esc(d.name || d.orcid) : 'Reviewer ' + (letters[d.orcid] = letters[d.orcid] || String.fromCharCode(65 + Object.keys(letters).length));
+    const el = this.body(`<div class="row" style="margin-bottom:10px"><select class="btn" id="adjCh">${this.chapterOptions(ch)}</select>
+        <label class="switch"><input type="checkbox" id="reveal" ${this.reveal ? 'checked' : ''}> Reveal reviewer names</label>
+        <span class="small muted">${r.items.length} to adjudicate. Names are hidden by default so conflicts are judged on their merits.</span></div>
+      ${r.items.map(it => `<div class="card" data-item="${it.id}"><div class="small muted">${it.id} · <a href="${ch}.html#entity=${it.entity_uri.split('/').pop()}" target="_blank">open in chapter page ↗</a></div>
+        <div class="syn" style="border:0;padding:4px 0"><div class="text">${esc(it.text)}</div>
+          <div class="meta">CodeFusion: ${esc(it.cf.relation || '—')}${it.cf.target ? ' → ' + esc(it.cf.target) + ' (' + it.cf.score + ')' : ''}</div></div>
+        <table class="grid"><tr><th>Reviewer</th><th>Decision</th><th>Wording</th><th>Reason / comment</th></tr>
+          ${it.decisions.map(d => `<tr><td>${who(d)}</td><td><span class="pill ${d.decision === 'reject' ? 'bad' : d.decision === 'flag' ? 'warn' : d.decision === 'skip' ? 'grey' : 'ok'}">${esc(d.decision)}</span></td>
+            <td class="small">${esc(d.final_text || '')}</td><td class="small">${esc([d.reason, d.comment].filter(Boolean).join(' — '))}</td></tr>`).join('')}</table>
+        <div class="row" style="margin-top:8px"><select class="btn" data-dec><option value="accept">Accept</option><option value="reject">Reject</option>
+          <option value="narrower">Accept as narrower term</option><option value="variant">Accept a variant (wording below)</option><option value="edit">Accept edited wording (below)</option></select>
+          <input class="btn" data-text placeholder="Wording, if variant or edited" style="width:260px" value="${esc((it.decisions.find(d => d.final_text) || {}).final_text || '')}">
+        </div><div class="extra" style="grid-template-columns:1fr"><input data-note placeholder="Adjudication note — goes to WHO with the final decision"></div>
+        <div style="margin-top:6px"><button class="btn primary" data-save>Record final decision</button><span class="status" data-st></span></div></div>`).join('')
+        || '<p class="muted">Nothing to adjudicate in this chapter.</p>'}`);
+    $('adjCh').onchange = ev => { this.adjChapter = ev.target.value; this.adjudicate(); };
+    $('reveal').onchange = ev => { this.reveal = ev.target.checked; this.adjudicate(); };
+    el.querySelectorAll('[data-item]').forEach(card => card.querySelector('[data-save]').onclick = async () => {
+      const decision = card.querySelector('[data-dec]').value, final_text = card.querySelector('[data-text]').value.trim();
+      if (['variant', 'edit'].includes(decision) && !final_text) return flash(card.querySelector('[data-st]'), 'Enter the wording.', 'err');
+      try {
+        await api('/api/admin/adjudications/' + card.dataset.item, { method: 'PUT', body: { decision, final_text: final_text || null, note: card.querySelector('[data-note]').value } });
+        card.remove();
+      } catch (e) { flash(card.querySelector('[data-st]'), e.message, 'err'); }
+    });
+  },
+
+  async export() {
+    const a = isAdmin() ? '' : 'disabled';
+    const el = this.body(`${isAdmin() ? `<div class="card"><h2 style="margin-top:0">Batch for WHO</h2><div class="form">
+        <label>Chapters</label><div><select multiple size="8" id="expCh">${this.chapterOptions()}</select><div class="help">Ctrl/Cmd-click for several.</div></div>
+        <label>Batch ID</label><input type="text" id="expBatch" value="WHO-${esc(IDX.release)}-01">
+        <span></span><div class="small muted">Includes every synonym of the chosen chapters, including ones sent before; the batch ID and date are recorded per synonym.
+          Final_Decision is empty for synonyms that are not final yet.</div>
+        <span></span><div><button class="btn primary" id="expWho" ${a}>Export WHO file (CSV)</button> <button class="btn" id="expInt" ${a}>Export internal file (CSV)</button>
+          <span class="status" id="expSt"></span></div></div></div>` : ''}
+      <div class="card"><h2 style="margin-top:0">Author list (credited reviewers with consent)</h2>
+        <button class="btn" data-auth="csv">CSV</button> <button class="btn" data-auth="cff">CITATION.cff</button> <button class="btn" data-auth="zenodo">Zenodo metadata (.zenodo.json)</button>
+        <p class="small muted">Name, ORCID iD, affiliation, ROR ID; withdrawn reviewers are left out.</p></div>`);
+    const chosen = () => [...$('expCh').selectedOptions].map(o => o.value).join(',');
+    if ($('expWho')) $('expWho').onclick = () => chosen() ? download(`/api/admin/export/who?chapters=${chosen()}&batch=${encodeURIComponent($('expBatch').value)}`, 'who.csv')
+      .catch(e => flash($('expSt'), e.message, 'err')) : flash($('expSt'), 'Choose chapters.', 'err');
+    if ($('expInt')) $('expInt').onclick = () => chosen() ? download(`/api/admin/export/internal?chapters=${chosen()}`, 'internal.csv')
+      .catch(e => flash($('expSt'), e.message, 'err')) : flash($('expSt'), 'Choose chapters.', 'err');
+    el.querySelectorAll('[data-auth]').forEach(b => b.onclick = () => download('/api/admin/authors?format=' + b.dataset.auth, 'authors'));
+  },
+
+  async log() {
+    const r = await api('/api/admin/log');
+    this.body(`<table class="grid"><tr><th>When (UTC)</th><th>Who</th><th>What</th><th>Target</th><th>Detail</th></tr>
+      ${r.events.map(e => `<tr><td class="small">${esc(e.at.replace('T', ' ').slice(0, 19))}</td><td class="small mono">${esc(e.orcid || '')}</td>
+        <td>${esc(e.action)}</td><td class="small">${esc(e.target || '')}</td><td class="small mono">${esc(e.detail || '')}</td></tr>`).join('')}</table>
+      <p class="small muted">Latest 200 events. Every decision, edit, credit change and export is logged.</p>`);
+  },
+
+  async settings() {
+    const s = await api('/api/admin/settings');
+    const dis = isAdmin() ? '' : 'disabled';
+    this.body(`<div class="card"><div class="form">
+      <label>Admin</label><div style="padding-top:5px">Set in the server configuration (ADMIN_ORCID).</div>
+      <label>Co-admins</label><div><textarea id="coadmins" rows="3" ${dis} placeholder="one ORCID iD per line">${esc(s.coadmins.join('\n'))}</textarea>
+        <div class="help">Co-admins can view the roster, counts and progress, and export author lists.</div>
+        <button class="btn small" id="saveCo" ${dis}>Save</button><span class="status" id="coSt"></span></div>
+      <label>Sign-in</label><div style="padding-top:5px">ORCID (authorisation code, openid); sessions last 7 days.</div>
+      <label>Reviews</label><div style="padding-top:5px">Each reviewer reviews their full chapter. Final when every active reviewer decided and all agree (at least two), otherwise adjudicated.</div>
+    </div></div>`);
+    if ($('saveCo')) $('saveCo').onclick = async () => {
+      try {
+        const r = await api('/api/admin/settings', { method: 'PUT', body: { coadmins: $('coadmins').value.split(/\s+/).map(x => x.replace('https://orcid.org/', '')).filter(Boolean) } });
+        $('coadmins').value = r.coadmins.join('\n'); flash($('coSt'), 'Saved.', 'ok');
+      } catch (e) { flash($('coSt'), e.message, 'err'); }
+    };
+  },
+};
+
+boot();
+
+</script>
+</body>
+</html>

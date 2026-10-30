@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter 25 Review</title>
+<meta name="description" content="Expert review of Mondo-derived synonym proposals for the ICD-11 Foundation, release v20261030.">
+<style>
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --ink: #1d2433; --muted: #667085; --line: #e3e6eb;
+  --brand: #1f4e79; --brand-soft: #e8f0f8; --accent: #a6ce39;  /* ORCID green */
+  --ok: #2e7d32; --ok-soft: #e8f5e9; --bad: #c62828; --bad-soft: #ffebee;
+  --warn: #b26a00; --warn-soft: #fff4e0; --info: #1565c0; --info-soft: #e3f2fd;
+  --mock: #5b21b6; --mock-soft: #f3e8ff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; min-width: 1100px; }
+a { color: var(--info); }
+button { font: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .45; }
+input, select, textarea { font: inherit; }
+
+header.top { background: var(--brand); color: #fff; display: flex; align-items: center; gap: 24px; padding: 0 20px; height: 52px; }
+header.top .brand { font-weight: 700; font-size: 15px; }
+header.top nav a { color: #dce7f2; text-decoration: none; margin-right: 18px; padding: 15px 0; border-bottom: 3px solid transparent; }
+header.top nav a.on { color: #fff; border-color: var(--accent); }
+header.top .right { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+.chip { background: rgba(255,255,255,.14); border-radius: 12px; padding: 2px 10px; font-size: 12px; }
+.badge { display: inline-block; min-width: 18px; padding: 0 6px; border-radius: 9px; background: var(--bad); color: #fff; font-size: 11px; text-align: center; margin-left: 4px; }
+.orcid-btn { background: #fff; color: #333; border: 0; border-radius: 4px; padding: 5px 10px; display: flex; gap: 6px; align-items: center; }
+.idicon { display: inline-flex; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); color: #fff; font: 700 9px/16px sans-serif; justify-content: center; vertical-align: -3px; }
+
+main { padding: 20px; max-width: 1400px; margin: 0 auto; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+h2 { font-size: 16px; margin: 22px 0 8px; }
+.lead { color: var(--muted); margin: 0 0 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
+.note { background: var(--info-soft); border-left: 3px solid var(--info); padding: 8px 12px; border-radius: 4px; font-size: 13px; margin: 8px 0; }
+.note.warn { background: var(--warn-soft); border-color: var(--warn); }
+.note.mock { background: var(--mock-soft); border-color: var(--mock); color: var(--mock); }
+table.grid { width: 100%; border-collapse: collapse; background: var(--panel); }
+table.grid th, table.grid td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.grid th { font-size: 11px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); background: #fafbfc; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.mono { font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+.pill { display: inline-block; border-radius: 10px; padding: 1px 8px; font-size: 11px; font-weight: 600; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); } .pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); } .pill.info { background: var(--info-soft); color: var(--info); }
+.pill.grey { background: #eef0f3; color: #555; }
+.btn { border: 1px solid var(--line); background: #fff; border-radius: 6px; padding: 5px 12px; }
+.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+.btn.small { padding: 2px 8px; font-size: 12px; }
+.row { display: flex; gap: 12px; align-items: center; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.tabs button { border: 0; background: none; padding: 8px 14px; color: var(--muted); border-bottom: 2px solid transparent; }
+.tabs button.on { color: var(--brand); border-color: var(--brand); font-weight: 600; }
+.switch { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+.switch input { width: 30px; height: 16px; }
+
+/* review page */
+.review { display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+.elist { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; align-self: start; }
+.elist .item { padding: 8px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.elist .item.sel { background: var(--brand-soft); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #cfd4dc; flex: none; }
+.dot.part { background: #f0b429; } .dot.done { background: var(--ok); }
+.cfdot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); flex: none; }
+.cfdot.sev2 { background: var(--bad); }
+/* CodeFusion overlay (relation pills as in v3) */
+.cf { display: inline-block; white-space: nowrap; border-radius: 10px; padding: 1px 8px; font-size: 11px; font-weight: 600; }
+.cf.confirmed { background: var(--ok-soft); color: var(--ok); }
+.cf.broader, .cf.narrower { background: var(--info-soft); color: var(--info); }
+.cf.sibling { background: #ede7f6; color: #5e35b1; }
+.cf.unrelated { background: var(--bad-soft); color: var(--bad); }
+.cf.nomatch, .cf.rootfallback { background: #eef0f3; color: #555; }
+.syn.contested { background: #fff8f8; }
+.cflegend { background: #fafbfc; border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; font-size: 12px; margin: 6px 0; }
+.cfbanner { display: flex; gap: 8px; align-items: baseline; padding: 8px 12px; border-radius: 4px; font-size: 13px; margin-top: 10px; }
+.cfbanner.ok { background: var(--ok-soft); } .cfbanner.bad { background: var(--warn-soft); border-left: 3px solid var(--warn); }
+.modal { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); display: flex; align-items: center; justify-content: center; z-index: 10; }
+.modal .box { background: #fff; border-radius: 10px; max-width: 760px; max-height: 85vh; overflow: auto; padding: 18px 22px; }
+.modal h3 { font-size: 14px; margin: 14px 0 4px; }
+.modal .keypt { background: var(--warn-soft); border-left: 3px solid var(--warn); padding: 6px 10px; font-size: 13px; }
+.elist .lbl { flex: 1; } .elist .sub { font-size: 11px; color: var(--muted); }
+.ehead .uri { font-size: 12px; color: var(--muted); }
+.ehead .title { font-size: 20px; font-weight: 700; margin: 2px 0; }
+.def { font-size: 13px; color: #344054; margin: 6px 0; }
+.mondo { display: inline-block; background: #eef2ff; color: #3730a3; border-radius: 4px; padding: 0 6px; font-size: 12px; margin-right: 6px; }
+.ctx { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+.ctx .box { background: #fafbfc; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12px; }
+.ctx .box b { display: block; font-size: 11px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.syn { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 8px 0; background: #fff; }
+.syn.decided { border-left: 4px solid var(--ok); } .syn.rejected { border-left: 4px solid var(--bad); }
+.syn.flagged { border-left: 4px solid var(--warn); }
+.syn .text { font-size: 15px; font-weight: 600; }
+.syn .meta { font-size: 12px; color: var(--muted); margin: 3px 0 6px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.meter { letter-spacing: 1px; color: var(--ok); font-size: 11px; }
+.meter i { color: #d0d5dd; font-style: normal; }
+.decide { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.decide button { border: 1px solid var(--line); background: #fff; border-radius: 5px; padding: 3px 10px; font-size: 12px; }
+.decide button.on.accept, .decide button.on.variant, .decide button.on.narrower, .decide button.on.edit { background: var(--ok); border-color: var(--ok); color: #fff; }
+.decide button.on.reject { background: var(--bad); border-color: var(--bad); color: #fff; }
+.decide button.on.flag { background: var(--warn); border-color: var(--warn); color: #fff; }
+.decide button.on.skip { background: #9e9e9e; border-color: #9e9e9e; color: #fff; }
+.variants { font-size: 12px; margin-top: 4px; }
+.variants button { border: 1px dashed #9db6d1; background: var(--brand-soft); color: var(--brand); border-radius: 12px; padding: 1px 9px; font-size: 12px; margin: 2px 4px 0 0; }
+.variants button.chosen { border-style: solid; background: var(--brand); color: #fff; }
+.extra { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+.extra input, .extra textarea { width: 100%; border: 1px solid var(--line); border-radius: 5px; padding: 4px 8px; font-size: 12px; }
+.rej { font-size: 12px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 2px 12px; }
+.rej .r { color: var(--muted); }
+
+/* forms */
+.form { display: grid; grid-template-columns: 180px 1fr; gap: 10px 16px; align-items: start; max-width: 860px; }
+.form label { font-weight: 600; padding-top: 5px; }
+.form input[type=text], .form input[type=email], .form select, .form textarea { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; }
+.form .help { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.consent { background: #fafbfc; border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; font-size: 13px; }
+.consent ul { margin: 6px 0 6px 18px; padding: 0; }
+
+/* acknowledgements */
+.ackch { margin-bottom: 18px; }
+.ackch h3 { font-size: 14px; margin: 0 0 6px; color: var(--brand); }
+.person { display: grid; grid-template-columns: 240px 280px 1fr; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.person a { text-decoration: none; }
+
+/* v4 additions */
+.status { font-size: 12px; color: var(--muted); margin-left: 8px; }
+.status.err { color: var(--bad); } .status.ok { color: var(--ok); }
+.locked { opacity: .65; }
+.banner { padding: 10px 20px; font-size: 13px; }
+.banner.err { background: var(--bad-soft); color: var(--bad); } .banner.info { background: var(--info-soft); color: var(--info); }
+.copy { width: 100%; font-family: ui-monospace, Consolas, monospace; font-size: 12px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; }
+.hidden { display: none !important; }
+
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html" style="color:#fff;text-decoration:none">Mondo → ICD-11 synonym review</a>
+  <nav id="nav"></nav>
+  <div class="right" id="hdrRight"></div>
+</header>
+<noscript><div class="banner err">This site needs JavaScript.</div></noscript>
+<main id="view"><p class="muted">Loading…</p></main>
+<footer class="small muted" style="max-width:1400px;margin:10px auto 30px;padding:0 20px">
+  Release v20261030: Mondo 2026-10-06 (CC BY 4.0) → ICD-11 Foundation 2026-01 (© World Health Organization, CC BY-ND 3.0 IGO).
+  Proposals are under review and not part of ICD-11.
+</footer>
+<script>
+window.API_BASE = "https://synonym-review.tannerzhang0128.workers.dev";
+window.INDEX = {"release":"v20261030","inputs":{"mondo":"2026-10-06","icd11_foundation":"2026-01","icd11_mms_for_chapters":"2026-01","lvg":"2026","codefusion":"1.1.1"},"chapters":[{"tag":"ch01","chapter":"01","title":"Certain infectious or parasitic diseases","synonyms":223,"entities":151},{"tag":"ch02","chapter":"02","title":"Neoplasms","synonyms":1127,"entities":401},{"tag":"ch03","chapter":"03","title":"Diseases of the blood or blood-forming organs","synonyms":97,"entities":55},{"tag":"ch04","chapter":"04","title":"Diseases of the immune system","synonyms":199,"entities":92},{"tag":"ch05","chapter":"05","title":"Endocrine, nutritional or metabolic diseases","synonyms":669,"entities":267},{"tag":"ch06","chapter":"06","title":"Mental, behavioural or neurodevelopmental disorders","synonyms":20,"entities":13},{"tag":"ch07","chapter":"07","title":"Sleep-wake disorders","synonyms":6,"entities":2},{"tag":"ch08","chapter":"08","title":"Diseases of the nervous system","synonyms":421,"entities":186},{"tag":"ch09","chapter":"09","title":"Diseases of the visual system","synonyms":134,"entities":81},{"tag":"ch10","chapter":"10","title":"Diseases of the ear or mastoid process","synonyms":12,"entities":9},{"tag":"ch11","chapter":"11","title":"Diseases of the circulatory system","synonyms":123,"entities":73},{"tag":"ch12","chapter":"12","title":"Diseases of the respiratory system","synonyms":51,"entities":37},{"tag":"ch13","chapter":"13","title":"Diseases of the digestive system","synonyms":117,"entities":69},{"tag":"ch14","chapter":"14","title":"Diseases of the skin","synonyms":172,"entities":100},{"tag":"ch15","chapter":"15","title":"Diseases of the musculoskeletal system or connective tissue","synonyms":74,"entities":43},{"tag":"ch16","chapter":"16","title":"Diseases of the genitourinary system","synonyms":54,"entities":28},{"tag":"ch18","chapter":"18","title":"Pregnancy, childbirth or the puerperium","synonyms":25,"entities":11},{"tag":"ch19","chapter":"19","title":"Certain conditions originating in the perinatal period","synonyms":47,"entities":18},{"tag":"ch20","chapter":"20","title":"Developmental anomalies","synonyms":1425,"entities":667},{"tag":"ch21","chapter":"21","title":"Symptoms, signs or clinical findings, not elsewhere classified","synonyms":12,"entities":9},{"tag":"ch25","chapter":"25","title":"Codes for special purposes","synonyms":2,"entities":1},{"tag":"ch_unassigned","chapter":"–","title":"No MMS chapter","synonyms":2,"entities":1}]};
+window.BUNDLE = {"release":"v20261030","inputs":{"mondo":"2026-10-06","icd11_foundation":"2026-01","icd11_mms_for_chapters":"2026-01","lvg":"2026","codefusion":"1.1.1"},"chapter":"25","chapter_title":"Codes for special purposes","tag":"ch25","entities":[{"id":"1730556128","title":"COVID-19","fsn":"","definition":"As definition may evolve, the URL for the Global surveillance document will be added as the short description","mms_code":"RA01","chapters_all":["25"],"browser":"https://icd.who.int/browse/2026-01/foundation/en#1730556128","existing":["novel coronavirus disease"],"narrower":[],"inclusions":[],"exclusions":[],"parents":[{"id":"486488173","title":"International provisional assignment of new diseases of uncertain aetiology and emergency use"}],"mondo":{"MONDO:0100096":{"label":"COVID-19","cf":{"rel":"narrower","target":"1790791774","target_title":"COVID-19, virus identified","level":"GoodMatch","score":1.0}}},"proposals":[{"id":"MSY-OP3BDDELPF","text":"2019 novel coronavirus infection","mondo":"MONDO:0100096","source":"Mondo (no upstream xref)","source_id":"","confidence":2,"cf":{"rel":"rootfallback","target":"243015485","target_title":"SARS-CoV-2","level":"FlexiMatch","score":0.511},"variants":[]},{"id":"MSY-65XDWA7OXM","text":"2019-nCoV infection","mondo":"MONDO:0100096","source":"DOID","source_id":"DOID:0080600","confidence":3,"cf":{"rel":"rootfallback","target":"243015485","target_title":"SARS-CoV-2","level":"FlexiMatch","score":0.656},"variants":[]}],"rejected":[{"text":"coronavirus disease 2019","mondo":"MONDO:0100096","reason":"Matches a synonym of a child in ICD","detail":""},{"text":"severe acute respiratory syndrome coronavirus 2 infectious disease","mondo":"MONDO:0100096","reason":"Modifier found but not shared with fully specified name","detail":""}]}]};
+</script>
+<script>
+// Review tool v4: one script for every page. build_site.py inlines it with the chapter index
+// (window.INDEX) and, on a chapter page, that chapter's bundle (window.BUNDLE).
+// Pages: index.html (#chapters, #ack, #me, #admin, #welcome, #invite=<token>) and <chapter>.html.
+'use strict';
+
+const API = new URLSearchParams(location.search).get('api') || window.API_BASE;
+const IDX = window.INDEX, B = window.BUNDLE || null;
+const SESSION_KEY = 'v4session', CREDITS_KEY = 'v4credits';
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = {
+  get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+  set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch { /* private mode */ } },
+};
+const chTitle = tag => (IDX.chapters.find(c => c.tag === tag) || {}).title || '';
+const chLabel = tag => { const c = IDX.chapters.find(x => x.tag === tag); return c ? `${c.chapter} — ${c.title}` : tag; };
+const orcidLink = o => o ? `<a href="https://orcid.org/${esc(o)}" target="_blank" rel="noopener"><span class="idicon">iD</span> https://orcid.org/${esc(o)}</a>` : '';
+const browserUrl = id => `https://icd.who.int/browse/2026-01/foundation/en#${id}`;
+const homeUrl = hash => 'index.html' + (hash ? '#' + hash : '');
+
+async function api(path, opts = {}) {
+  const token = store.get(SESSION_KEY);
+  const res = await fetch(API + path, { method: opts.method || 'GET',
+    headers: { ...(token ? { Authorization: 'Bearer ' + token } : {}), ...(opts.body ? { 'Content-Type': 'application/json' } : {}) },
+    body: opts.body ? JSON.stringify(opts.body) : undefined });
+  if (opts.raw) { if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText); return res; }
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401 && token) { store.set(SESSION_KEY, null); ME = null; }
+  if (!res.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
+async function download(path, fallbackName) {
+  const res = await api(path, { raw: true });
+  const name = (res.headers.get('Content-Disposition') || '').match(/filename="([^"]+)"/);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(await res.blob());
+  a.download = name ? name[1] : fallbackName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function signIn(afterHash, invite) {
+  const back = location.href.split('#')[0].replace(/\?.*$/, '') + (afterHash ? '#' + afterHash : '');
+  location.href = `${API}/auth/login?return=${encodeURIComponent(back)}${invite ? '&invite=' + encodeURIComponent(invite) : ''}`;
+}
+async function signOut() {
+  try { await api('/auth/logout', { method: 'POST' }); } catch { /* already gone */ }
+  store.set(SESSION_KEY, null); ME = null; location.href = homeUrl('chapters');
+}
+function flash(el, text, kind) { if (el) { el.textContent = text; el.className = 'status ' + (kind || ''); } }
+
+// ── state ────────────────────────────────────────────────────────────────────
+let ME = null;            // GET /api/me
+let route = 'chapters';
+let INVITE = null;
+const isStaff = () => ME && (ME.role === 'admin' || ME.role === 'coadmin');
+const isAdmin = () => ME && ME.role === 'admin';
+const needsWelcome = () => ME && (!ME.person.consent_at || ME.person.withdrawn_at);
+
+function readHash() {
+  const parts = Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(p => {
+    const i = p.indexOf('='); return i < 0 ? [p, ''] : [p.slice(0, i), decodeURIComponent(p.slice(i + 1))];
+  }));
+  if (parts.session) {                       // just back from ORCID sign-in: keep the token, clean the URL
+    store.set(SESSION_KEY, parts.session);
+    delete parts.session;
+    history.replaceState(null, '', location.pathname + location.search + (Object.keys(parts).length ? '#' + Object.keys(parts).join('&') : ''));
+  }
+  if ('invite' in parts) INVITE = parts.invite;
+  const r = Object.keys(parts).find(k => ['chapters', 'ack', 'me', 'admin', 'welcome'].includes(k));
+  route = r || (INVITE ? 'invite' : 'chapters');
+}
+
+// ── shell ────────────────────────────────────────────────────────────────────
+function renderShell() {
+  const links = [[homeUrl('chapters'), 'Chapters', !B && route === 'chapters']];
+  if (ME) (ME.chapters || []).filter(c => c.status === 'active').forEach(c =>
+    links.push([c.chapter + '.html', 'Review ' + chLabel(c.chapter).split(' — ')[0], B && B.tag === c.chapter]));
+  if (ME) links.push([homeUrl('me'), 'My status', !B && route === 'me']);
+  links.push([homeUrl('ack'), 'Acknowledgements', !B && route === 'ack']);
+  if (isStaff()) links.push([homeUrl('admin'), 'Admin', !B && route === 'admin']);
+  $('nav').innerHTML = links.map(([h, l, on]) => `<a href="${h}" class="${on ? 'on' : ''}">${esc(l)}</a>`).join('');
+  $('hdrRight').innerHTML = `<span class="chip">Release ${esc(IDX.release)}</span>` + (ME
+    ? `<span class="chip">${esc(ME.person.name || ME.orcid)} · <span class="idicon">iD</span>${ME.role !== 'reviewer' ? ' · ' + ME.role : ''}</span>
+       <button class="btn small" id="signOut">Sign out</button>`
+    : `<button class="orcid-btn" id="signIn"><span class="idicon">iD</span> Sign in with ORCID</button>`);
+  if ($('signIn')) $('signIn').onclick = () => signIn(B ? '' : route);
+  if ($('signOut')) $('signOut').onclick = signOut;
+}
+
+async function boot() {
+  readHash();
+  if (store.get(SESSION_KEY)) {
+    try { ME = await api('/api/me'); } catch (e) { ME = null; }
+  }
+  // reviewers confirm details and consent first; admins are not reviewers unless they choose to be
+  if (!B && ME && ME.role === 'reviewer' && needsWelcome() && route !== 'ack') route = 'welcome';
+  renderShell();
+  if (B) return Review.start();
+  const view = { chapters: viewChapters, ack: viewAck, me: viewMe, admin: Admin.start, welcome: viewWelcome, invite: viewInvite }[route];
+  await (view || viewChapters)();
+}
+window.addEventListener('hashchange', boot);
+
+// ── chapters ─────────────────────────────────────────────────────────────────
+function viewChapters() {
+  const mine = Object.fromEntries((ME ? ME.chapters : []).map(c => [c.chapter, c]));
+  $('view').innerHTML = `<h1>Chapters</h1>
+  <p class="lead">Synonyms proposed from the Mondo Disease Ontology (${esc(IDX.inputs.mondo)}) for the ICD-11 Foundation
+    ${esc(IDX.inputs.icd11_foundation)}, release ${esc(IDX.release)}. Review is by invitation to a dedicated group of clinicians;
+    each reviewer is assigned a full chapter. Anyone can read the proposals.</p>
+  <table class="grid"><tr><th>Chapter</th><th>Title</th><th>Entities</th><th>Proposed synonyms</th>${ME ? '<th>You</th>' : ''}</tr>
+  ${IDX.chapters.map(c => `<tr><td><a href="${c.tag}.html">${esc(c.chapter)}</a></td><td><a href="${c.tag}.html">${esc(c.title)}</a></td>
+     <td>${c.entities.toLocaleString()}</td><td>${c.synonyms.toLocaleString()}</td>
+     ${ME ? `<td class="small">${mine[c.tag] ? (mine[c.tag].status === 'active' ? `reviewing · ${mine[c.tag].decided} / ${c.synonyms}` : mine[c.tag].status) : ''}</td>` : ''}</tr>`).join('')}
+  </table>`;
+}
+
+// ── invitation landing ───────────────────────────────────────────────────────
+function viewInvite() {
+  $('view').innerHTML = `<h1>You're invited to review</h1>
+    <p class="lead">Sign in with your ORCID iD to accept the invitation. You'll then confirm your details and consent before reviewing.</p>
+    <button class="orcid-btn" id="acceptInvite" style="border:1px solid var(--line)"><span class="idicon">iD</span> Sign in with ORCID and accept</button>`;
+  $('acceptInvite').onclick = () => signIn('welcome', INVITE);
+}
+
+// ── first sign-in: details and consent ───────────────────────────────────────
+const CONSENT = `<p>By taking part in this review you agree that:</p><ul>
+  <li>We store your ORCID iD, name, affiliation, email, specialty and every review decision and comment you make, with dates.</li>
+  <li>If the project lead credits your contribution, your name, ORCID iD and affiliation are listed publicly on the Acknowledgements page.
+      Your email, specialty, comments and individual decisions are never shown publicly.</li>
+  <li>Your name, ORCID iD and affiliation may be used in future publications and in the submission of accepted synonyms to WHO.</li>
+  <li>You can withdraw at any time from "My status". You are then removed from the public page and author lists; your decisions remain in the review record.</li></ul>`;
+
+function profileFields(p, pre) {
+  const v = k => esc(p[k] || pre[k] || '');
+  return `<label>Name</label><div><input type="text" id="f_name" value="${v('name')}"><div class="help">From ORCID; edit it to the form you use on publications.</div></div>
+    <label>Institution</label><div><input type="text" id="f_institution" value="${v('institution')}"></div>
+    <label>Country</label><div><input type="text" id="f_country" value="${v('country')}"></div>
+    <label>ROR ID</label><div><input type="text" id="f_ror" value="${v('ror')}" placeholder="https://ror.org/…  (recommended)">
+      <div class="help">Recommended: find your institution's ROR ID at <a href="https://ror.org" target="_blank" rel="noopener">ror.org</a>.
+      Your name and affiliation may be used for future publications arising from this review.</div></div>
+    <label>Email</label><div><input type="email" id="f_email" value="${v('email')}"><div class="help">Required, so we can contact you about the review and authorship. Never shown publicly.</div></div>`;
+}
+const readProfile = () => Object.fromEntries(['name', 'institution', 'country', 'ror', 'email', 'specialty', 'note']
+  .filter(k => $('f_' + k)).map(k => [k, $('f_' + k).value]));
+
+function viewWelcome() {
+  if (!ME) return viewChapters();
+  const p = ME.person, pre = ME.prefill || {};
+  const active = ME.chapters.filter(c => c.status === 'active');
+  $('view').innerHTML = `<h1>Welcome — confirm your details</h1>
+    <p class="lead">${active.length ? `You are invited to review ${active.map(c => '<b>Chapter ' + esc(chLabel(c.chapter)) + '</b>').join(', ')}.`
+      : 'You are signed in, but not assigned to a chapter yet. You can request one below; the project lead approves requests.'}</p>
+    <div class="card"><div class="form">
+      <label>ORCID iD</label><div style="padding-top:5px">${orcidLink(ME.orcid)} <span class="pill ok">verified by sign-in</span></div>
+      ${profileFields(p, pre)}
+      <label>Clinical specialty</label><input type="text" id="f_specialty" value="${esc(p.specialty || '')}" placeholder="e.g. infectious diseases">
+      <label>Other chapters</label><div><select multiple size="5" id="f_requests">${IDX.chapters.filter(c => !ME.chapters.some(x => x.chapter === c.tag))
+        .map(c => `<option value="${c.tag}">${esc(c.chapter)} — ${esc(c.title)}</option>`).join('')}</select>
+        <div class="help">Optional: request more chapters (Ctrl/Cmd-click for several); the project lead approves.</div></div>
+      <label>Note</label><textarea rows="2" id="f_note" placeholder="Optional: relevant experience">${esc(p.note || '')}</textarea>
+      <label>Consent</label><div class="consent">${CONSENT}<label style="display:flex;gap:8px;font-weight:600;margin-top:8px"><input type="checkbox" id="f_consent"> I agree</label></div>
+      <span></span><div><button class="btn primary" id="save">Save and continue</button><span class="status" id="st"></span></div>
+    </div></div>`;
+  $('save').onclick = async () => {
+    if (!$('f_consent').checked) return flash($('st'), 'Please tick the consent box.', 'err');
+    try {
+      ME = await api('/api/me', { method: 'PUT', body: { ...readProfile(), consent: true,
+        request_chapters: [...$('f_requests').selectedOptions].map(o => o.value) } });
+      const first = ME.chapters.find(c => c.status === 'active');
+      location.href = first ? first.chapter + '.html' : homeUrl('me');
+    } catch (e) { flash($('st'), e.message, 'err'); }
+  };
+}
+
+// ── my status ────────────────────────────────────────────────────────────────
+function viewMe() {
+  if (!ME) { $('view').innerHTML = '<p class="lead">Sign in with ORCID to see your status.</p>'; return; }
+  const p = ME.person;
+  $('view').innerHTML = `<h1>My status</h1><p class="lead">Only you and the project admins can see this page.</p>
+  <div class="card"><h2 style="margin-top:0">Profile</h2><div class="form">
+    <label>ORCID iD</label><div style="padding-top:5px">${orcidLink(ME.orcid)}</div>
+    ${profileFields(p, {})}
+    <label>Clinical specialty</label><input type="text" id="f_specialty" value="${esc(p.specialty || '')}">
+    <span></span><div><button class="btn primary" id="save">Save</button><span class="status" id="st">Changes go live immediately and are logged.</span></div>
+  </div></div>
+  <div class="card"><h2 style="margin-top:0">Chapters</h2><table class="grid"><tr><th>Chapter</th><th>Status</th><th>Your decisions</th><th>Public credit</th></tr>
+    ${ME.chapters.map(c => `<tr><td>${c.status === 'active' ? `<a href="${c.chapter}.html">${esc(chLabel(c.chapter))}</a>` : esc(chLabel(c.chapter))}</td>
+      <td>${esc(c.status)}</td><td>${c.decided} / ${(IDX.chapters.find(x => x.tag === c.chapter) || {}).synonyms || '?'}</td>
+      <td>${c.credited ? '<span class="pill ok">credited</span>' : '<span class="pill grey">not yet credited</span>'}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">No chapters yet.</td></tr>'}
+  </table>
+  <p class="row" style="margin-top:10px"><select class="btn" id="reqSel">${IDX.chapters.filter(c => !ME.chapters.some(x => x.chapter === c.tag))
+    .map(c => `<option value="${c.tag}">${esc(c.chapter)} — ${esc(c.title)}</option>`).join('')}</select>
+    <button class="btn small" id="reqBtn">Request this chapter</button><span class="status" id="reqSt"></span></p></div>
+  <div class="card"><h2 style="margin-top:0">Consent and data</h2>
+    <p>${p.withdrawn_at ? `You withdrew on ${esc(p.withdrawn_at.slice(0, 10))}. <a href="${homeUrl('welcome')}">Give consent again</a>`
+      : `Consent given ${esc((p.consent_at || '').slice(0, 10))}. <button class="btn small" id="withdraw">Withdraw consent</button>`}</p>
+    <p><button class="btn small" id="dlCsv">Download my data (CSV)</button> <button class="btn small" id="dlJson">Download my data (JSON)</button></p></div>`;
+  $('save').onclick = async () => {
+    try { ME = await api('/api/me', { method: 'PUT', body: readProfile() }); flash($('st'), 'Saved.', 'ok'); renderShell(); }
+    catch (e) { flash($('st'), e.message, 'err'); }
+  };
+  $('reqBtn').onclick = async () => {
+    try { await api('/api/me/requests', { method: 'POST', body: { chapter: $('reqSel').value } }); ME = await api('/api/me'); viewMe(); }
+    catch (e) { flash($('reqSt'), e.message, 'err'); }
+  };
+  if ($('withdraw')) $('withdraw').onclick = async () => {
+    if (!window.confirm('Withdraw consent? You will be removed from the public page and author lists; your decisions stay in the review record.')) return;
+    await api('/api/me/withdraw', { method: 'POST' }); ME = await api('/api/me'); viewMe();
+  };
+  $('dlCsv').onclick = () => download('/api/me/export?format=csv', 'my-review-decisions.csv');
+  $('dlJson').onclick = () => download('/api/me/export?format=json', 'my-review-data.json');
+}
+
+// ── acknowledgements (public) ────────────────────────────────────────────────
+async function viewAck() {
+  $('view').innerHTML = `<h1>Acknowledgements: expert reviewers</h1>
+    <div class="note">This page credits the expert reviewers only. The pipeline team, data sources and tools are credited in the
+      <a href="https://github.com/tannerzhang/foundation-synonym-enrichment/wiki" target="_blank" rel="noopener">project wiki</a>.</div>
+    <div id="ackBody" class="muted small">Loading…</div>`;
+  let data, live = true;
+  try {
+    data = await api('/api/credits');
+    store.set(CREDITS_KEY, JSON.stringify(data));
+  } catch {
+    live = false;
+    data = JSON.parse(store.get(CREDITS_KEY) || 'null');
+    if (!data) data = await fetch('data/credits.json').then(r => r.json()).catch(() => null);
+  }
+  if (!data) { $('ackBody').innerHTML = '<div class="note warn">The review server cannot be reached and no saved list is available.</div>'; return; }
+  $('ackBody').className = '';
+  $('ackBody').innerHTML = (live ? '<p class="small muted">Loaded live from the review server.</p>'
+      : `<div class="note warn">The review server can't be reached. Showing the last saved list, as of ${esc(data.as_of.slice(0, 10))}.</div>`) +
+    (data.chapters.length ? data.chapters.map(ch => `<div class="ackch"><h3>Chapter ${esc(chLabel(ch.chapter))}</h3>
+      ${ch.people.map(p => `<div class="person"><div><b>${esc(p.name)}</b></div><div>${orcidLink(p.orcid)}</div>
+        <div>${esc([p.institution, p.country].filter(Boolean).join(', '))}</div></div>`).join('')}</div>`).join('')
+      : '<p class="muted">No reviewers are credited yet.</p>');
+}
+
+// ── chapter review page ──────────────────────────────────────────────────────
+const CF_REL = {
+  confirmed: ['✓ confirmed', 'CodeFusion coded this term to the pipeline’s entity.'],
+  broader: ['↑ broader', 'CodeFusion’s target is broader — usually acceptable.'],
+  narrower: ['↓ narrower', 'CodeFusion’s target is more specific — usually acceptable.'],
+  sibling: ['↔ sibling', 'CodeFusion placed the term on a sibling entity — check which is right.'],
+  unrelated: ['⚠ unrelated', 'CodeFusion placed the term on a different branch — review carefully.'],
+  nomatch: ['∅ no match', 'CodeFusion could not place this term (below its match threshold) — weak term.'],
+  rootfallback: ['∅ no specific match', 'CodeFusion fell back to a broad container (e.g. a chapter root) — no specific entity.'],
+};
+const contested = rel => ['unrelated', 'nomatch', 'rootfallback'].includes(rel);
+const cfPill = cf => `<span class="cf ${cf.rel}" title="${esc(CF_REL[cf.rel][1])}${cf.level ? ' MatchLevel ' + esc(cf.level) + ', score ' + cf.score + '.' : ''}">${CF_REL[cf.rel][0]}</span>`;
+const meter = n => `<span class="meter" title="Source confidence ${n}/5: number and authority of upstream sources">${'●'.repeat(n)}<i>${'●'.repeat(5 - n)}</i></span>`;
+const DECISION_BUTTONS = [['accept', '✓ Accept'], ['reject', '✗ Reject'], ['flag', '⚠ Flag'], ['skip', '⏭ Skip'], ['narrower', '↓ Accept as narrower term'], ['edit', '✎ Edit wording…']];
+
+const Review = {
+  sel: 0, filter: 'all', sort: 'conf', cfOn: true, about: false, mine: {}, locked: new Set(), closed: false, canEdit: false,
+
+  async start() {
+    const asg = ME && ME.chapters.find(c => c.chapter === B.tag);
+    this.canEdit = !!(asg && asg.status === 'active' && ME.person.consent_at && !ME.person.withdrawn_at);
+    if (this.canEdit) {
+      try {
+        const d = await api('/api/decisions?chapter=' + B.tag);
+        this.mine = d.decisions; this.locked = new Set(d.locked); this.closed = d.closed;
+        if (d.closed) this.canEdit = false;
+      } catch (e) { this.banner = 'Could not load your decisions: ' + e.message; this.canEdit = false; }
+    }
+    const want = location.hash.match(/entity=(\d+)/);
+    if (want) this.sel = Math.max(0, B.entities.findIndex(e => e.id === want[1]));
+    this.render();
+  },
+  severity(e) {
+    const rels = [...Object.values(e.mondo).map(m => m.cf.rel), ...e.proposals.map(p => p.cf.rel)].filter(r => r !== 'confirmed');
+    return !rels.length ? 0 : rels.some(contested) ? 2 : 1;
+  },
+  decided(p) { return !!(this.mine[p.id] && this.mine[p.id].decision); },
+  visible() {
+    return B.entities.map((e, i) => ({ e, i })).filter(({ e }) =>
+      this.filter === 'open' ? e.proposals.some(p => !this.decided(p))
+      : this.filter === 'cf' ? this.severity(e) > 0
+      : this.filter === 'flag' ? e.proposals.some(p => (this.mine[p.id] || {}).decision === 'flag')
+      : true);
+  },
+  render() {
+    const e = B.entities[this.sel];
+    const all = B.entities.flatMap(x => x.proposals);
+    const nDone = all.filter(p => this.decided(p)).length;
+    const role = !ME ? `<div class="note">Read-only. Reviewers invited to this chapter <a href="#" id="signLink">sign in with ORCID</a> to record decisions.</div>`
+      : this.closed ? '<div class="note warn">This chapter is closed; decisions are locked.</div>'
+      : !this.canEdit ? `<div class="note">Read-only: you are not an active reviewer of this chapter${needsWelcome() ? ' (consent is needed first — see <a href="' + homeUrl('welcome') + '">Welcome</a>)' : ''}.</div>` : '';
+    const list = this.visible().map(({ e: x, i }) => {
+      const sev = this.cfOn ? this.severity(x) : 0, done = x.proposals.filter(p => this.decided(p)).length;
+      return `<div class="item ${i === this.sel ? 'sel' : ''}" data-i="${i}">
+        <span class="dot ${done === 0 ? '' : done === x.proposals.length ? 'done' : 'part'}"></span>
+        ${sev ? `<span class="cfdot ${sev === 2 ? 'sev2' : ''}" title="CodeFusion ${sev === 2 ? 'contests a mapping or synonym' : 'diverges (related entity)'}"></span>` : ''}
+        <div class="lbl">${esc(x.title)}<div class="sub">${esc(Object.values(x.mondo).map(m => m.label).join('; '))} · ${done}/${x.proposals.length}</div></div></div>`;
+    }).join('') || '<div class="item muted">No entities match this filter.</div>';
+    const props = [...e.proposals].sort(this.sort === 'alpha' ? (a, b) => a.text.localeCompare(b.text)
+      : (a, b) => b.confidence - a.confidence || a.text.localeCompare(b.text));
+    $('view').innerHTML = `${this.banner ? `<div class="note warn">${esc(this.banner)}</div>` : ''}
+    <div class="row" style="justify-content:space-between"><div><h1>Chapter ${esc(B.chapter)} — ${esc(B.chapter_title)}</h1>
+      <p class="lead">${ME && this.canEdit ? `Your decisions: ${nDone} of ${all.length}. Saved automatically. Your review is independent: other reviewers' decisions are never shown to you.`
+        : `${B.entities.length} entities, ${all.length} proposed synonyms.`}</p></div>
+      <div class="row">
+        <label class="switch"><input type="checkbox" id="cfToggle" ${this.cfOn ? 'checked' : ''}> CodeFusion overlay</label>
+        <button class="btn small" id="cfAboutBtn">ⓘ About CodeFusion</button>
+        <select class="btn" id="filterSel">${[['all', 'All entities'], ['open', 'Not fully decided by me'], ['cf', 'CodeFusion disagrees'], ['flag', 'Flagged by me']]
+          .map(([k, l]) => `<option value="${k}" ${this.filter === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <select class="btn" id="sortSel"><option value="conf" ${this.sort === 'conf' ? 'selected' : ''}>Sort: source confidence</option><option value="alpha" ${this.sort === 'alpha' ? 'selected' : ''}>Sort: A–Z</option></select>
+      </div></div>${role}
+    <div class="review"><div class="elist">${list}</div><div>
+      <div class="card ehead">
+        <div class="uri">Foundation <span class="mono">http://id.who.int/icd/entity/${esc(e.id)}</span>${e.mms_code ? ' · MMS <b>' + esc(e.mms_code) + '</b>' : ''} ·
+          <a href="${esc(e.browser || browserUrl(e.id))}" target="_blank" rel="noopener">ICD-11 browser ↗</a></div>
+        <div class="title">${esc(e.title)}</div>
+        ${e.fsn && e.fsn !== e.title ? `<div class="small muted">Fully specified name: ${esc(e.fsn)}</div>` : ''}
+        <div class="def">${esc(e.definition) || '<span class="muted">No definition in the Foundation.</span>'}</div>
+        <div>${Object.entries(e.mondo).map(([c, m]) => `<span class="mondo">${esc(c)}</span>${esc(m.label)}`).join(' &nbsp; ')}
+          ${e.chapters_all.length > 1 ? ` <span class="pill info" title="Foundation polyhierarchy">also under chapters ${esc(e.chapters_all.filter(c => 'ch' + c !== B.tag).join(', '))}</span>` : ''}</div>
+        <div class="ctx">
+          <div class="box"><b>Parents</b>${e.parents.map(p => `<a href="${browserUrl(p.id)}" target="_blank" rel="noopener">${esc(p.title)}</a>`).join('<br>') || '<span class="muted">none</span>'}</div>
+          <div class="box"><b>Existing ICD-11 synonyms (${e.existing.length})</b>${e.existing.map(esc).join('<br>') || '<span class="muted">none</span>'}</div>
+          <div class="box"><b>Narrower / inclusions / exclusions</b>${[...e.narrower, ...e.inclusions].map(esc).join('<br>') || '<span class="muted">none</span>'}
+            ${e.exclusions.length ? '<br><i>Excl.:</i> ' + e.exclusions.map(esc).join(', ') : ''}</div>
+        </div>
+        ${this.cfOn ? Object.entries(e.mondo).map(([c, m]) => m.cf.rel === 'confirmed'
+          ? `<div class="cfbanner ok"><span class="cf confirmed">CodeFusion: aligned</span> Mapping mode routes ${esc(c)} (label + synonyms) to this entity.</div>`
+          : `<div class="cfbanner bad">${cfPill(m.cf)}<span>CodeFusion (mapping mode) routes ${esc(c)} to <b>${esc(m.cf.target_title || m.cf.target || 'no entity')}</b>
+              ${m.cf.target ? `(<a href="${browserUrl(m.cf.target)}" target="_blank" rel="noopener">${esc(m.cf.target)} ↗</a>)` : ''}, not to this entity —
+              MappingMatchLevel <b>${esc(m.cf.level)}</b>, score ${m.cf.score}. ${esc(CF_REL[m.cf.rel][1])}</span></div>`).join('') : ''}
+      </div>
+      <div class="row" style="margin:4px 0 2px"><b>Proposed synonyms (${e.proposals.length})</b>
+        ${this.canEdit ? '<span class="small muted">· Quick: </span><button class="btn small" data-bulk="accept">Accept all</button><button class="btn small" data-bulk="skip">Skip all</button>' : ''}</div>
+      ${this.cfOn ? `<div class="cflegend"><b>CodeFusion</b> — WHO’s ICD-11 coder, run independently as a second opinion (version ${esc(B.inputs.codefusion)}); each synonym is coded on its own.
+          <a href="#" id="cfAboutLink">ⓘ how to read these verdicts</a><br>
+          ${['confirmed', 'broader', 'narrower', 'sibling', 'unrelated', 'nomatch'].map(r => `<span class="cf ${r}">${CF_REL[r][0]}</span>`).join(' ')}
+          <span class="muted"> — a term coding to a parent or sibling on its own is expected, not an error; ⚠ unrelated and ∅ no match deserve a closer look.</span></div>` : ''}
+      ${props.map(p => this.card(p)).join('')}
+      <details class="card" ${e.rejected.length ? '' : ''}><summary><b>Not proposed by the pipeline (${e.rejected.length})</b>
+        <span class="small muted">— for context; reasons from the filters</span></summary><div class="rej" style="margin-top:8px">
+        ${e.rejected.map(r => `<div>${esc(r.text)}</div><div class="r">${esc(r.reason)}${r.detail ? ': ' + esc(r.detail) : ''}</div>`).join('')}</div></details>
+    </div></div>${this.about ? this.aboutBox() : ''}`;
+    this.bind();
+  },
+  card(p) {
+    const D = this.mine[p.id] || {}, locked = this.locked.has(p.id) || !this.canEdit;
+    const cls = !D.decision ? '' : D.decision === 'reject' ? 'rejected' : D.decision === 'flag' ? 'flagged' : 'decided';
+    const shown = ['variant', 'edit'].includes(D.decision) && D.final_text ? D.final_text : p.text;
+    const dis = locked ? 'disabled' : '';
+    return `<div class="syn ${cls} ${this.cfOn && contested(p.cf.rel) ? 'contested' : ''} ${this.locked.has(p.id) ? 'locked' : ''}" data-id="${p.id}">
+      <div class="text">${esc(shown)}${shown !== p.text ? `<span class="small muted"> (proposed: ${esc(p.text)})</span>` : ''}
+        ${this.locked.has(p.id) ? ' <span class="pill grey">final — locked</span>' : ''}<span class="status" data-st></span></div>
+      <div class="meta">${meter(p.confidence)}<span>${esc(p.source.replace('Mondo (no upstream xref)', 'Mondo only'))}</span>
+        <span class="mono">${esc(p.source_id)}</span><span class="mono">${esc(p.mondo)}</span>
+        ${this.cfOn ? `<span>CodeFusion ${cfPill(p.cf)}</span>${p.cf.target ? `<span>→ <a href="${browserUrl(p.cf.target)}" target="_blank" rel="noopener">${esc(p.cf.target_title || p.cf.target)} ↗</a> (score ${p.cf.score})</span>` : ''}` : ''}
+        <span class="mono" title="Stable ID: same entity + text keeps this ID across releases">${p.id}</span></div>
+      ${p.variants.length ? `<div class="variants">Equivalent variants the pipeline did not pick${locked ? '' : ' (click to accept instead; click again to undo)'}: ${p.variants.map(v =>
+        `<button data-variant="${esc(v)}" ${dis} class="${D.decision === 'variant' && D.final_text === v ? 'chosen' : ''}">⇄ ${esc(v)}</button>`).join('')}</div>` : ''}
+      ${!ME || !this.canEdit && !D.decision ? '' : `<div class="decide">
+        ${DECISION_BUTTONS.map(([k, l]) => `<button class="${k} ${D.decision === k ? 'on' : ''}" data-d="${k}" ${dis}>${l}</button>`).join('')}
+        ${D.decision && !locked ? '<button data-clear title="Remove my decision">↺ Clear</button>' : ''}</div>
+      <div class="extra">
+        ${D.decision === 'reject' ? `<input data-f="reason" ${dis} placeholder="Reason (recommended, optional)" value="${esc(D.reason || '')}">` : ''}
+        ${D.decision === 'edit' ? `<input data-f="final_text" ${dis} placeholder="Your wording (goes to the admin for review)" value="${esc(D.final_text || '')}">` : ''}
+        <input data-f="comment" ${dis} placeholder="Comment — visible to admins only" value="${esc(D.comment || '')}">
+      </div>`}</div>`;
+  },
+  async save(id, D, card) {
+    const st = card && card.querySelector('[data-st]');
+    flash(st, 'saving…');
+    try {
+      await api('/api/decisions/' + id, { method: 'PUT', body: D.decision ? D : { decision: '' } });
+      if (D.decision) this.mine[id] = D; else delete this.mine[id];
+      flash(st, 'saved', 'ok');
+      return true;
+    } catch (e) { flash(st, e.message, 'err'); return false; }
+  },
+  bind() {
+    const view = $('view');
+    if ($('signLink')) $('signLink').onclick = ev => { ev.preventDefault(); signIn(''); };
+    view.querySelectorAll('.elist .item[data-i]').forEach(el => el.onclick = () => { this.sel = +el.dataset.i; this.render(); window.scrollTo(0, 0); });
+    $('cfToggle').onchange = ev => { this.cfOn = ev.target.checked; this.render(); };
+    $('filterSel').onchange = ev => { this.filter = ev.target.value; this.render(); };
+    $('sortSel').onchange = ev => { this.sort = ev.target.value; this.render(); };
+    const openAbout = ev => { ev.preventDefault(); this.about = true; this.render(); };
+    $('cfAboutBtn').onclick = openAbout;
+    if ($('cfAboutLink')) $('cfAboutLink').onclick = openAbout;
+    if ($('cfModal')) {
+      $('cfClose').onclick = () => { this.about = false; this.render(); };
+      $('cfModal').onclick = ev => { if (ev.target.id === 'cfModal') { this.about = false; this.render(); } };
+    }
+    view.querySelectorAll('.syn').forEach(card => {
+      const id = card.dataset.id, cur = () => ({ ...(this.mine[id] || {}) });
+      const commit = async D => { if (await this.save(id, D, card)) this.render(); };
+      card.querySelectorAll('[data-d]').forEach(b => b.onclick = () => {
+        const D = cur(), d = b.dataset.d;
+        if (D.decision === d) return commit({ decision: '' });          // clicking the active decision removes it
+        if (d === 'edit') { this.mine[id] = { ...D, decision: 'edit', final_text: '' }; return this.render(); }  // saved once wording is typed
+        commit({ decision: d, reason: d === 'reject' ? D.reason : null, comment: D.comment });
+      });
+      card.querySelectorAll('[data-variant]').forEach(b => b.onclick = () => {
+        const D = cur(), v = b.dataset.variant;
+        commit(D.decision === 'variant' && D.final_text === v ? { decision: '' } : { decision: 'variant', final_text: v, comment: D.comment });
+      });
+      const clear = card.querySelector('[data-clear]');
+      if (clear) clear.onclick = () => commit({ decision: '' });
+      card.querySelectorAll('[data-f]').forEach(inp => inp.onchange = async () => {
+        const D = { ...cur(), [inp.dataset.f]: inp.value };
+        if (!D.decision) return flash(card.querySelector('[data-st]'), 'Choose a decision first; the comment is saved with it.', 'err');
+        if (D.decision === 'edit' && !D.final_text) return;
+        await this.save(id, D, card);
+      });
+    });
+    view.querySelectorAll('[data-bulk]').forEach(b => b.onclick = async () => {
+      for (const p of B.entities[this.sel].proposals) {
+        if (!this.locked.has(p.id)) await this.save(p.id, { decision: b.dataset.bulk, comment: (this.mine[p.id] || {}).comment }, null);
+      }
+      this.render();
+    });
+  },
+  aboutBox() {
+    return `<div class="modal" id="cfModal"><div class="box">
+      <div class="row" style="justify-content:space-between"><h2 style="margin:0">ⓘ About the CodeFusion overlay</h2><button class="btn small" id="cfClose">Close</button></div>
+      <p><b>CodeFusion</b> is WHO’s ICD-11 coding and mapping engine. Here it is run independently (version ${esc(B.inputs.codefusion)},
+        local Docker) as a second opinion on the pipeline’s Mondo → ICD-11 proposals. <a href="https://icd.who.int/docs/codefusion/en/" target="_blank" rel="noopener">Documentation ↗</a></p>
+      <h3>Two modes, two levels</h3>
+      <p><b>Mapping mode</b> takes the Mondo concept’s label and synonyms together: does CodeFusion route the whole concept to the entity the pipeline used? → the banner under the entity.<br>
+      <b>Coding mode</b> codes each synonym on its own: where does that term land by itself? → the label on each synonym.</p>
+      <h3>Concept verdict</h3>
+      <p><b>Aligned / misaligned</b> depends only on whether CodeFusion picked the same entity. <b>MappingMatchLevel</b> (GoodMatch › OtherMatch ›
+        ConflictingGoodMatch › NoMatch) is CodeFusion’s confidence, shown alongside. A confident GoodMatch that still disagrees is the strongest signal.</p>
+      <h3>Synonym verdicts</h3>
+      <p>${Object.keys(CF_REL).map(r => `<span class="cf ${r}">${CF_REL[r][0]}</span> ${esc(CF_REL[r][1])}`).join('<br>')}</p>
+      <div class="keypt">A synonym coding to a parent or sibling on its own is expected, not an error. Only ⚠ unrelated and ∅ no match need real scrutiny.
+        Rows with those are tinted; the entity list shows an amber dot for related divergence and a red dot for a contested mapping or synonym.</div>
+    </div></div>`;
+  },
+};
+
+// ── admin ────────────────────────────────────────────────────────────────────
+const Admin = {
+  tab: 'roster', reveal: false, adjChapter: null,
+
+  async start() {
+    if (!isStaff()) { $('view').innerHTML = '<p class="lead">Admins only.</p>'; return; }
+    const tabs = [['roster', 'Roster'], ['progress', 'Progress'], ['adjudicate', 'Adjudication'], ['export', 'Exports'], ['log', 'Audit log'], ['settings', 'Settings']]
+      .filter(([k]) => isAdmin() || ['roster', 'progress', 'export', 'settings'].includes(k));
+    $('view').innerHTML = `<h1>Admin</h1><p class="lead">${isAdmin() ? 'Signed in as the project admin.'
+      : 'Co-admin: you can view the roster, counts and progress, and export author lists.'}</p>
+      <div class="tabs">${tabs.map(([k, l]) => `<button data-tab="${k}" class="${Admin.tab === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+      <div id="tabBody" class="muted small">Loading…</div>`;
+    $('view').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { Admin.tab = b.dataset.tab; Admin.start(); });
+    try { await Admin[Admin.tab](); } catch (e) { $('tabBody').innerHTML = `<div class="note warn">${esc(e.message)}</div>`; }
+  },
+  body(html) { const el = $('tabBody'); el.className = ''; el.innerHTML = html; return el; },
+  chapterOptions(sel) { return IDX.chapters.map(c => `<option value="${c.tag}" ${c.tag === sel ? 'selected' : ''}>${esc(c.chapter)} — ${esc(c.title)}</option>`).join(''); },
+
+  async roster() {
+    const r = await api('/api/admin/roster');
+    const dis = isAdmin() ? '' : 'disabled';
+    const requests = r.people.flatMap(p => p.assignments.filter(a => a.status === 'requested').map(a => ({ p, a })));
+    const el = this.body(`
+      ${isAdmin() ? `<div class="card"><b>Invite a reviewer</b><div class="row" style="margin-top:8px">
+        <select class="btn" id="invCh">${this.chapterOptions()}</select><input type="email" id="invEmail" class="btn" placeholder="their email (for your records)">
+        <button class="btn primary" id="invBtn">Create invitation link</button></div>
+        <div id="invOut" class="hidden" style="margin-top:8px"><input class="copy" id="invLink" readonly>
+        <div class="help small muted">Send this personal link to the reviewer. It works once: they sign in with ORCID through it and are assigned the chapter.</div></div></div>` : ''}
+      ${requests.map(({ p, a }) => `<div class="note warn"><b>Chapter request:</b> ${esc(p.name)} asks to review Chapter ${esc(chLabel(a.chapter))}.
+        <button class="btn small" data-req="${p.orcid}|${a.chapter}|active" ${dis}>Approve</button>
+        <button class="btn small" data-req="${p.orcid}|${a.chapter}|declined" ${dis}>Decline</button></div>`).join('')}
+      <table class="grid"><tr><th>Reviewer</th><th>Affiliation</th><th>Contact / specialty</th><th>Status</th><th>Chapters · public credit</th><th>Decisions</th><th>Last active</th></tr>
+      ${r.people.map(p => {
+        const counts = {}; p.counts.forEach(c => counts[c.decision] = (counts[c.decision] || 0) + c.n);
+        const status = p.withdrawn_at ? '<span class="pill bad">withdrawn</span>' : p.consent_at ? '<span class="pill ok">active</span>' : '<span class="pill info">no consent yet</span>';
+        return `<tr><td><b>${esc(p.name)}</b>${p.orcid === ME.orcid ? ' (you)' : ''}<br><span class="small">${orcidLink(p.orcid)}</span></td>
+          <td class="small">${esc([p.institution, p.country].filter(Boolean).join(', '))}${p.ror ? `<br><a href="${esc(p.ror)}" target="_blank" rel="noopener">ROR</a>` : ''}</td>
+          <td class="small">${esc(p.email || '')}<br>${esc(p.specialty || '')}${p.note ? `<br><i>${esc(p.note)}</i>` : ''}</td>
+          <td>${status}<div class="small muted">${p.consent_at ? 'consent ' + esc(p.consent_at.slice(0, 10)) : ''}</div></td>
+          <td class="small">${p.assignments.map(a => `<div class="switch">Ch ${esc(a.chapter.replace('ch', ''))} (${esc(a.status)}):
+              ${(p.counts.filter(c => c.chapter === a.chapter).reduce((s, c) => s + c.n, 0))}/${r.chapter_totals[a.chapter] || '?'}
+              ${a.status === 'active' ? `<input type="checkbox" data-credit="${p.orcid}|${a.chapter}" ${a.credited ? 'checked' : ''} ${dis || (!p.consent_at || p.withdrawn_at ? 'disabled' : '')}> credit` : ''}</div>`).join('') || '<span class="muted">none</span>'}</td>
+          <td class="small">${Object.entries(counts).map(([k, n]) => `${k} ${n}`).join(' · ') || '—'}</td>
+          <td class="small">${esc((p.last_active || '').slice(0, 10)) || '—'}</td></tr>`;
+      }).join('') || '<tr><td colspan="7" class="muted">Nobody has signed in yet.</td></tr>'}</table>
+      ${r.invitations.length ? `<h2>Invitations</h2><table class="grid"><tr><th>Created</th><th>Chapter</th><th>Sent to</th><th>Status</th></tr>
+        ${r.invitations.map(i => `<tr><td class="small">${esc(i.created_at.slice(0, 10))}</td><td>${esc(i.chapter)}</td><td class="small">${esc(i.email || '')}</td>
+          <td class="small">${i.used_by ? 'accepted ' + esc(i.used_at.slice(0, 10)) : `open · <input class="copy" readonly value="${esc(i.link)}" style="width:420px">`}</td></tr>`).join('')}</table>` : ''}`);
+    if ($('invBtn')) $('invBtn').onclick = async () => {
+      const j = await api('/api/admin/invitations', { method: 'POST', body: { chapter: $('invCh').value, email: $('invEmail').value } });
+      $('invOut').classList.remove('hidden'); $('invLink').value = j.link; $('invLink').select();
+    };
+    el.querySelectorAll('[data-req]').forEach(b => b.onclick = async () => {
+      const [orcid, chapter, status] = b.dataset.req.split('|');
+      await api('/api/admin/assignments', { method: 'PUT', body: { orcid, chapter, status } }); this.roster();
+    });
+    el.querySelectorAll('[data-credit]').forEach(c => c.onchange = async () => {
+      const [orcid, chapter] = c.dataset.credit.split('|');
+      await api('/api/admin/assignments', { method: 'PUT', body: { orcid, chapter, credited: c.checked } });
+    });
+  },
+
+  async progress() {
+    const r = await api('/api/admin/progress');
+    const pct = (n, d) => d ? Math.round(100 * n / d) + '%' : '—';
+    const el = this.body(`<div class="row" style="margin-bottom:10px"><label class="switch"><input type="checkbox" id="pubProg" ${r.public_progress ? 'checked' : ''} ${isAdmin() ? '' : 'disabled'}>
+        Show chapter progress on the public site</label><span class="small muted">Off for now; turn on later for tracking and acknowledgement.</span></div>
+      <table class="grid"><tr><th>Chapter</th><th>Synonyms</th><th>Reviewers</th><th>≥1 review</th><th>≥2 reviews</th><th>Conflicts</th><th>Final</th><th></th></tr>
+      ${r.chapters.map(c => `<tr><td>${esc(chLabel(c.chapter))}</td><td>${c.synonyms}</td><td>${c.reviewers}</td><td>${pct(c.reviewed1, c.synonyms)}</td>
+        <td>${pct(c.reviewed2, c.synonyms)}</td><td>${c.conflicts ? `<a href="#" data-adj="${c.chapter}">${c.conflicts}</a>` : 0}</td><td>${pct(c.final, c.synonyms)}</td>
+        <td>${isAdmin() ? `<button class="btn small" data-close="${c.chapter}|${c.closed ? 'reopen' : 'close'}">${c.closed ? 'Reopen' : 'Close chapter'}</button>` : (c.closed ? 'closed' : '')}</td></tr>`).join('')}</table>
+      <p class="small muted">Final = every active reviewer decided and all agree (at least two), or adjudicated. Closing a chapter locks its decisions; the pages stay readable.</p>`);
+    if (isAdmin()) $('pubProg').onchange = ev => api('/api/admin/settings', { method: 'PUT', body: { public_progress: ev.target.checked } });
+    el.querySelectorAll('[data-close]').forEach(b => b.onclick = async () => {
+      const [ch, what] = b.dataset.close.split('|');
+      if (what === 'close' && !window.confirm('Close ' + chLabel(ch) + '? Decisions will be locked.')) return;
+      await api('/api/admin/settings', { method: 'PUT', body: what === 'close' ? { close_chapter: ch } : { reopen_chapter: ch } }); this.progress();
+    });
+    el.querySelectorAll('[data-adj]').forEach(a => a.onclick = ev => { ev.preventDefault(); this.adjChapter = a.dataset.adj; this.tab = 'adjudicate'; this.start(); });
+  },
+
+  async adjudicate() {
+    const ch = this.adjChapter || IDX.chapters[0].tag;
+    const r = await api('/api/admin/conflicts?chapter=' + ch);
+    const letters = {};
+    const who = d => this.reveal ? esc(d.name || d.orcid) : 'Reviewer ' + (letters[d.orcid] = letters[d.orcid] || String.fromCharCode(65 + Object.keys(letters).length));
+    const el = this.body(`<div class="row" style="margin-bottom:10px"><select class="btn" id="adjCh">${this.chapterOptions(ch)}</select>
+        <label class="switch"><input type="checkbox" id="reveal" ${this.reveal ? 'checked' : ''}> Reveal reviewer names</label>
+        <span class="small muted">${r.items.length} to adjudicate. Names are hidden by default so conflicts are judged on their merits.</span></div>
+      ${r.items.map(it => `<div class="card" data-item="${it.id}"><div class="small muted">${it.id} · <a href="${ch}.html#entity=${it.entity_uri.split('/').pop()}" target="_blank">open in chapter page ↗</a></div>
+        <div class="syn" style="border:0;padding:4px 0"><div class="text">${esc(it.text)}</div>
+          <div class="meta">CodeFusion: ${esc(it.cf.relation || '—')}${it.cf.target ? ' → ' + esc(it.cf.target) + ' (' + it.cf.score + ')' : ''}</div></div>
+        <table class="grid"><tr><th>Reviewer</th><th>Decision</th><th>Wording</th><th>Reason / comment</th></tr>
+          ${it.decisions.map(d => `<tr><td>${who(d)}</td><td><span class="pill ${d.decision === 'reject' ? 'bad' : d.decision === 'flag' ? 'warn' : d.decision === 'skip' ? 'grey' : 'ok'}">${esc(d.decision)}</span></td>
+            <td class="small">${esc(d.final_text || '')}</td><td class="small">${esc([d.reason, d.comment].filter(Boolean).join(' — '))}</td></tr>`).join('')}</table>
+        <div class="row" style="margin-top:8px"><select class="btn" data-dec><option value="accept">Accept</option><option value="reject">Reject</option>
+          <option value="narrower">Accept as narrower term</option><option value="variant">Accept a variant (wording below)</option><option value="edit">Accept edited wording (below)</option></select>
+          <input class="btn" data-text placeholder="Wording, if variant or edited" style="width:260px" value="${esc((it.decisions.find(d => d.final_text) || {}).final_text || '')}">
+        </div><div class="extra" style="grid-template-columns:1fr"><input data-note placeholder="Adjudication note — goes to WHO with the final decision"></div>
+        <div style="margin-top:6px"><button class="btn primary" data-save>Record final decision</button><span class="status" data-st></span></div></div>`).join('')
+        || '<p class="muted">Nothing to adjudicate in this chapter.</p>'}`);
+    $('adjCh').onchange = ev => { this.adjChapter = ev.target.value; this.adjudicate(); };
+    $('reveal').onchange = ev => { this.reveal = ev.target.checked; this.adjudicate(); };
+    el.querySelectorAll('[data-item]').forEach(card => card.querySelector('[data-save]').onclick = async () => {
+      const decision = card.querySelector('[data-dec]').value, final_text = card.querySelector('[data-text]').value.trim();
+      if (['variant', 'edit'].includes(decision) && !final_text) return flash(card.querySelector('[data-st]'), 'Enter the wording.', 'err');
+      try {
+        await api('/api/admin/adjudications/' + card.dataset.item, { method: 'PUT', body: { decision, final_text: final_text || null, note: card.querySelector('[data-note]').value } });
+        card.remove();
+      } catch (e) { flash(card.querySelector('[data-st]'), e.message, 'err'); }
+    });
+  },
+
+  async export() {
+    const a = isAdmin() ? '' : 'disabled';
+    const el = this.body(`${isAdmin() ? `<div class="card"><h2 style="margin-top:0">Batch for WHO</h2><div class="form">
+        <label>Chapters</label><div><select multiple size="8" id="expCh">${this.chapterOptions()}</select><div class="help">Ctrl/Cmd-click for several.</div></div>
+        <label>Batch ID</label><input type="text" id="expBatch" value="WHO-${esc(IDX.release)}-01">
+        <span></span><div class="small muted">Includes every synonym of the chosen chapters, including ones sent before; the batch ID and date are recorded per synonym.
+          Final_Decision is empty for synonyms that are not final yet.</div>
+        <span></span><div><button class="btn primary" id="expWho" ${a}>Export WHO file (CSV)</button> <button class="btn" id="expInt" ${a}>Export internal file (CSV)</button>
+          <span class="status" id="expSt"></span></div></div></div>` : ''}
+      <div class="card"><h2 style="margin-top:0">Author list (credited reviewers with consent)</h2>
+        <button class="btn" data-auth="csv">CSV</button> <button class="btn" data-auth="cff">CITATION.cff</button> <button class="btn" data-auth="zenodo">Zenodo metadata (.zenodo.json)</button>
+        <p class="small muted">Name, ORCID iD, affiliation, ROR ID; withdrawn reviewers are left out.</p></div>`);
+    const chosen = () => [...$('expCh').selectedOptions].map(o => o.value).join(',');
+    if ($('expWho')) $('expWho').onclick = () => chosen() ? download(`/api/admin/export/who?chapters=${chosen()}&batch=${encodeURIComponent($('expBatch').value)}`, 'who.csv')
+      .catch(e => flash($('expSt'), e.message, 'err')) : flash($('expSt'), 'Choose chapters.', 'err');
+    if ($('expInt')) $('expInt').onclick = () => chosen() ? download(`/api/admin/export/internal?chapters=${chosen()}`, 'internal.csv')
+      .catch(e => flash($('expSt'), e.message, 'err')) : flash($('expSt'), 'Choose chapters.', 'err');
+    el.querySelectorAll('[data-auth]').forEach(b => b.onclick = () => download('/api/admin/authors?format=' + b.dataset.auth, 'authors'));
+  },
+
+  async log() {
+    const r = await api('/api/admin/log');
+    this.body(`<table class="grid"><tr><th>When (UTC)</th><th>Who</th><th>What</th><th>Target</th><th>Detail</th></tr>
+      ${r.events.map(e => `<tr><td class="small">${esc(e.at.replace('T', ' ').slice(0, 19))}</td><td class="small mono">${esc(e.orcid || '')}</td>
+        <td>${esc(e.action)}</td><td class="small">${esc(e.target || '')}</td><td class="small mono">${esc(e.detail || '')}</td></tr>`).join('')}</table>
+      <p class="small muted">Latest 200 events. Every decision, edit, credit change and export is logged.</p>`);
+  },
+
+  async settings() {
+    const s = await api('/api/admin/settings');
+    const dis = isAdmin() ? '' : 'disabled';
+    this.body(`<div class="card"><div class="form">
+      <label>Admin</label><div style="padding-top:5px">Set in the server configuration (ADMIN_ORCID).</div>
+      <label>Co-admins</label><div><textarea id="coadmins" rows="3" ${dis} placeholder="one ORCID iD per line">${esc(s.coadmins.join('\n'))}</textarea>
+        <div class="help">Co-admins can view the roster, counts and progress, and export author lists.</div>
+        <button class="btn small" id="saveCo" ${dis}>Save</button><span class="status" id="coSt"></span></div>
+      <label>Sign-in</label><div style="padding-top:5px">ORCID (authorisation code, openid); sessions last 7 days.</div>
+      <label>Reviews</label><div style="padding-top:5px">Each reviewer reviews their full chapter. Final when every active reviewer decided and all agree (at least two), otherwise adjudicated.</div>
+    </div></div>`);
+    if ($('saveCo')) $('saveCo').onclick = async () => {
+      try {
+        const r = await api('/api/admin/settings', { method: 'PUT', body: { coadmins: $('coadmins').value.split(/\s+/).map(x => x.replace('https://orcid.org/', '')).filter(Boolean) } });
+        $('coadmins').value = r.coadmins.join('\n'); flash($('coSt'), 'Saved.', 'ok');
+      } catch (e) { flash($('coSt'), e.message, 'err'); }
+    };
+  },
+};
+
+boot();
+
+</script>
+</body>
+</html>

@@ -299,6 +299,7 @@ function profileFields(p, pre) {
       Your name and affiliation may be used for future publications arising from this review.</div></div>
     <label>Email</label><div><input type="email" id="f_email" value="${v('email')}"><div class="help">Required, so we can contact you about the review and authorship. Never shown publicly.</div></div>`;
 }
+const requestable = () => IDX.chapters.filter(c => !ME.chapters.some(x => x.chapter === c.tag && ['active', 'requested'].includes(x.status)));
 const readProfile = () => Object.fromEntries(['name', 'institution', 'country', 'ror', 'email', 'specialty', 'note']
   .filter(k => $('f_' + k)).map(k => [k, $('f_' + k).value]));
 
@@ -313,7 +314,7 @@ function viewWelcome() {
       <label>ORCID iD</label><div style="padding-top:5px">${orcidLink(ME.orcid)} <span class="pill ok">verified by sign-in</span></div>
       ${profileFields(p, pre)}
       <label>Clinical specialty</label><input type="text" id="f_specialty" value="${esc(p.specialty || '')}" placeholder="e.g. infectious diseases">
-      <label>Other chapters</label><div><select multiple size="5" id="f_requests">${IDX.chapters.filter(c => !ME.chapters.some(x => x.chapter === c.tag))
+      <label>Other chapters</label><div><select multiple size="5" id="f_requests">${requestable()
         .map(c => `<option value="${c.tag}">${esc(c.chapter)} — ${esc(c.title)}</option>`).join('')}</select>
         <div class="help">Optional: request more chapters (Ctrl/Cmd-click for several); the project lead approves.</div></div>
       <label>Note</label><textarea rows="2" id="f_note" placeholder="Optional: relevant experience">${esc(p.note || '')}</textarea>
@@ -344,10 +345,11 @@ function viewMe() {
   </div></div>
   <div class="card"><h2 style="margin-top:0">Chapters</h2><table class="grid"><tr><th>Chapter</th><th>Status</th><th>Your decisions</th><th>Public credit</th></tr>
     ${ME.chapters.map(c => `<tr><td>${c.status === 'active' ? `<a href="${c.chapter}.html">${esc(chLabel(c.chapter))}</a>` : esc(chLabel(c.chapter))}</td>
-      <td>${esc(c.status)}</td><td>${c.decided} / ${(IDX.chapters.find(x => x.tag === c.chapter) || {}).synonyms || '?'}</td>
+      <td>${c.status === 'requested' ? 'waiting for approval' : c.status === 'declined'
+        ? `declined <button class="btn small" data-again="${c.chapter}">Request again</button>` : esc(c.status)}</td><td>${c.decided} / ${(IDX.chapters.find(x => x.tag === c.chapter) || {}).synonyms || '?'}</td>
       <td>${c.credited ? '<span class="pill ok">credited</span>' : '<span class="pill grey">not yet credited</span>'}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">No chapters yet.</td></tr>'}
   </table>
-  <p class="row" style="margin-top:10px"><select class="btn" id="reqSel">${IDX.chapters.filter(c => !ME.chapters.some(x => x.chapter === c.tag))
+  <p class="row" style="margin-top:10px"><select class="btn" id="reqSel">${requestable()
     .map(c => `<option value="${c.tag}">${esc(c.chapter)} — ${esc(c.title)}</option>`).join('')}</select>
     <button class="btn small" id="reqBtn">Request this chapter</button><span class="status" id="reqSt"></span></p></div>
   <div class="card"><h2 style="margin-top:0">Consent and data</h2>
@@ -358,10 +360,12 @@ function viewMe() {
     try { ME = await api('/api/me', { method: 'PUT', body: readProfile() }); flash($('st'), 'Saved.', 'ok'); renderShell(); }
     catch (e) { flash($('st'), e.message, 'err'); }
   };
-  $('reqBtn').onclick = async () => {
-    try { await api('/api/me/requests', { method: 'POST', body: { chapter: $('reqSel').value } }); ME = await api('/api/me'); viewMe(); }
+  const request = async chapter => {
+    try { await api('/api/me/requests', { method: 'POST', body: { chapter } }); ME = await api('/api/me'); viewMe(); }
     catch (e) { flash($('reqSt'), e.message, 'err'); }
   };
+  $('reqBtn').onclick = () => request($('reqSel').value);
+  document.querySelectorAll('[data-again]').forEach(b => b.onclick = () => request(b.dataset.again));
   if ($('withdraw')) $('withdraw').onclick = async () => {
     if (!window.confirm('Withdraw consent? You will be removed from the public page and author lists; your decisions stay in the review record.')) return;
     await api('/api/me/withdraw', { method: 'POST' }); ME = await api('/api/me'); viewMe();
@@ -616,16 +620,26 @@ const Admin = {
   async roster() {
     const r = await api('/api/admin/roster');
     const dis = isAdmin() ? '' : 'disabled';
-    const requests = r.people.flatMap(p => p.assignments.filter(a => a.status === 'requested').map(a => ({ p, a })));
+    // pending first, then declined (kept so they can be found and approved after all), newest first
+    const requests = r.people.flatMap(p => p.assignments.filter(a => ['requested', 'declined'].includes(a.status)).map(a => ({ p, a })))
+      .sort((x, y) => (x.a.status === 'requested' ? 0 : 1) - (y.a.status === 'requested' ? 0 : 1) || y.a.updated_at.localeCompare(x.a.updated_at));
     const el = this.body(`
       ${isAdmin() ? `<div class="card"><b>Invite a reviewer</b><div class="row" style="margin-top:8px">
         <select class="btn" id="invCh">${this.chapterOptions()}</select><input type="email" id="invEmail" class="btn" placeholder="their email (for your records)">
         <button class="btn primary" id="invBtn">Create invitation link</button></div>
         <div id="invOut" class="hidden" style="margin-top:8px"><input class="copy" id="invLink" readonly>
         <div class="help small muted">Send this personal link to the reviewer. It works once: they sign in with ORCID through it and are assigned the chapter.</div></div></div>` : ''}
-      ${requests.map(({ p, a }) => `<div class="note warn"><b>Chapter request:</b> ${esc(p.name)} asks to review Chapter ${esc(chLabel(a.chapter))}.
-        <button class="btn small" data-req="${p.orcid}|${a.chapter}|active" ${dis}>Approve</button>
-        <button class="btn small" data-req="${p.orcid}|${a.chapter}|declined" ${dis}>Decline</button></div>`).join('')}
+      <h2 style="margin-top:4px">Chapter requests</h2>
+      ${requests.length ? `<table class="grid" style="margin-bottom:14px"><tr><th>Reviewer</th><th>Chapter</th><th>Status</th><th>Requested</th><th>Decided</th><th></th></tr>
+        ${requests.map(({ p, a }) => `<tr><td><b>${esc(p.name || p.orcid)}</b><br><span class="small">${orcidLink(p.orcid)}</span></td>
+          <td>${esc(chLabel(a.chapter))}</td>
+          <td>${a.status === 'requested' ? '<span class="pill warn">waiting</span>' : '<span class="pill grey">declined</span>'}</td>
+          <td class="small">${esc(a.created_at.slice(0, 10))}</td><td class="small">${a.status === 'declined' ? esc(a.updated_at.slice(0, 10)) : '—'}</td>
+          <td>${a.status === 'requested'
+            ? `<button class="btn small" data-req="${p.orcid}|${a.chapter}|active" ${dis}>Approve</button> <button class="btn small" data-req="${p.orcid}|${a.chapter}|declined" ${dis}>Decline</button>`
+            : `<button class="btn small" data-req="${p.orcid}|${a.chapter}|active" ${dis}>Approve after all</button>`}</td></tr>`).join('')}</table>`
+        : '<p class="small muted">No pending or declined requests.</p>'}
+      <h2>Reviewers</h2>
       <table class="grid"><tr><th>Reviewer</th><th>Affiliation</th><th>Contact / specialty</th><th>Status</th><th>Chapters · public credit</th><th>Decisions</th><th>Last active</th></tr>
       ${r.people.map(p => {
         const counts = {}; p.counts.forEach(c => counts[c.decision] = (counts[c.decision] || 0) + c.n);
@@ -634,7 +648,7 @@ const Admin = {
           <td class="small">${esc([p.institution, p.country].filter(Boolean).join(', '))}${p.ror ? `<br><a href="${esc(p.ror)}" target="_blank" rel="noopener">ROR</a>` : ''}</td>
           <td class="small">${esc(p.email || '')}<br>${esc(p.specialty || '')}${p.note ? `<br><i>${esc(p.note)}</i>` : ''}</td>
           <td>${status}<div class="small muted">${p.consent_at ? 'consent ' + esc(p.consent_at.slice(0, 10)) : ''}</div></td>
-          <td class="small">${p.assignments.map(a => `<div class="switch">Ch ${esc(a.chapter.replace('ch', ''))} (${esc(a.status)}):
+          <td class="small">${p.assignments.map(a => `<div class="switch" style="display:flex">Ch ${esc(a.chapter.replace('ch', ''))} (${esc(a.status)}):
               ${(p.counts.filter(c => c.chapter === a.chapter).reduce((s, c) => s + c.n, 0))}/${r.chapter_totals[a.chapter] || '?'}
               ${a.status === 'active' ? `<input type="checkbox" data-credit="${p.orcid}|${a.chapter}" ${a.credited ? 'checked' : ''} ${dis || (!p.consent_at || p.withdrawn_at ? 'disabled' : '')}> credit` : ''}</div>`).join('') || '<span class="muted">none</span>'}</td>
           <td class="small">${Object.entries(counts).map(([k, n]) => `${k} ${n}`).join(' · ') || '—'}</td>

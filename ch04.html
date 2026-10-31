@@ -134,6 +134,24 @@ table.grid th { font-size: 11px; text-transform: uppercase; letter-spacing: .03e
 .copy { width: 100%; font-family: ui-monospace, Consolas, monospace; font-size: 12px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; }
 .hidden { display: none !important; }
 
+/* two-step review */
+.syn.pending { border-left: 4px solid var(--info); }
+.step { border-top: 1px dashed var(--line); margin-top: 8px; padding-top: 8px; }
+.stephead { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; margin-bottom: 6px; }
+.relbtns, .confbtns { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 4px 0; }
+.relbtns button, .confbtns button { border: 1px solid var(--line); background: #fff; border-radius: 5px; padding: 3px 10px; font-size: 12px; }
+.confbtns button { min-width: 30px; }
+.relbtns button.on, .confbtns button.on { background: var(--brand); border-color: var(--brand); color: #fff; }
+.relbtns button:focus-visible, .confbtns button:focus-visible { outline: 2px solid var(--info); outline-offset: 1px; }
+.firstmark { font-size: 10px; opacity: .75; margin-left: 5px; }
+.stepnext { margin-top: 6px; gap: 10px; }
+.expl { background: var(--brand-soft); border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 13px; }
+.expl summary { cursor: pointer; }
+.expl p { margin: 6px 0; } .expl ul { margin: 2px 0 6px; padding-left: 20px; }
+.expl .watch { color: var(--warn); }
+.answers { margin-top: 8px; font-size: 13px; }
+.linkbtn { border: 0; background: none; color: var(--info); text-decoration: underline; padding: 0 2px; font-size: 12px; }
+
 </style>
 </head>
 <body>
@@ -212,7 +230,7 @@ let route = 'chapters';
 let INVITE = null;
 const isStaff = () => ME && (ME.role === 'admin' || ME.role === 'coadmin');
 const isAdmin = () => ME && ME.role === 'admin';
-const needsWelcome = () => ME && (!ME.person.consent_at || ME.person.withdrawn_at);
+const needsWelcome = () => ME && !ME.consent_current;   // no consent, withdrawn, or consent to an older text
 
 function readHash() {
   const parts = Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(p => {
@@ -282,12 +300,24 @@ function viewInvite() {
 }
 
 // ── first sign-in: details and consent ───────────────────────────────────────
+// Consent text version 2 (server CONSENT_VERSION). Changing it means raising the version, so that
+// everyone who agreed to the old text is asked again.
 const CONSENT = `<p>By taking part in this review you agree that:</p><ul>
-  <li>We store your ORCID iD, name, affiliation, email, specialty and every review decision and comment you make, with dates.</li>
+  <li>We store your ORCID iD, name, affiliation, email, specialty and every review answer, decision and comment you make, with dates.</li>
+  <li><b>Two-step review.</b> For each proposed synonym you first say how it compares with the ICD-11 entity, without any AI or
+      CodeFusion hint. You then see an explanation and a suggested answer written by an AI model (Claude, made by Anthropic), and
+      answer again. Your first answer is locked once you open the explanation. The explanations were checked by a second AI pass,
+      not by clinicians, and may contain errors; your own judgement decides. About 1 in 10 synonyms, chosen at random, have no
+      explanation, so that answers with and without it can be compared.</li>
+  <li><b>Research use.</b> Your answers and decisions are used in a study of how well reviewers agree with each other and with the AI,
+      intended for publication. The analysis file replaces your name and ORCID iD with a code and keeps only your specialty.
+      Publications report combined results only and never identify you or your individual answers.</li>
   <li>If the project lead credits your contribution, your name, ORCID iD and affiliation are listed publicly on the Acknowledgements page.
-      Your email, specialty, comments and individual decisions are never shown publicly.</li>
+      Your email, specialty, comments, answers and individual decisions are never shown publicly.</li>
   <li>Your name, ORCID iD and affiliation may be used in future publications and in the submission of accepted synonyms to WHO.</li>
-  <li>You can withdraw at any time from "My status". You are then removed from the public page and author lists; your decisions remain in the review record.</li></ul>`;
+  <li>Taking part is voluntary. You can withdraw at any time from "My status". You are then removed from the public page and author
+      lists, and your answers are left out of any research analysis not yet completed. Your decisions stay in the review record
+      that is sent to WHO.</li></ul>`;
 
 function profileFields(p, pre) {
   const v = k => esc(p[k] || pre[k] || '');
@@ -308,6 +338,8 @@ function viewWelcome() {
   const p = ME.person, pre = ME.prefill || {};
   const active = ME.chapters.filter(c => c.status === 'active');
   $('view').innerHTML = `<h1>Welcome — confirm your details</h1>
+    ${p.consent_at && !p.withdrawn_at ? `<div class="note warn">The consent text has changed. It now describes the two-step review with
+      AI explanations and the research use of your answers. Please read it and agree again to continue reviewing.</div>` : ''}
     <p class="lead">${active.length ? `You are invited to review ${active.map(c => '<b>Chapter ' + esc(chLabel(c.chapter)) + '</b>').join(', ')}.`
       : 'You are signed in, but not assigned to a chapter yet. You can request one below; the project lead approves requests.'}</p>
     <div class="card"><div class="form">
@@ -367,7 +399,7 @@ function viewMe() {
   $('reqBtn').onclick = () => request($('reqSel').value);
   document.querySelectorAll('[data-again]').forEach(b => b.onclick = () => request(b.dataset.again));
   if ($('withdraw')) $('withdraw').onclick = async () => {
-    if (!window.confirm('Withdraw consent? You will be removed from the public page and author lists; your decisions stay in the review record.')) return;
+    if (!window.confirm('Withdraw consent? You will be removed from the public page and author lists, and your answers will be left out of research analyses not yet completed. Your decisions stay in the review record.')) return;
     await api('/api/me/withdraw', { method: 'POST' }); ME = await api('/api/me'); viewMe();
   };
   $('dlCsv').onclick = () => download('/api/me/export?format=csv', 'my-review-decisions.csv');
@@ -413,17 +445,29 @@ const contested = rel => ['unrelated', 'nomatch', 'rootfallback'].includes(rel);
 const cfPill = cf => `<span class="cf ${cf.rel}" title="${esc(CF_REL[cf.rel][1])}${cf.level ? ' MatchLevel ' + esc(cf.level) + ', score ' + cf.score + '.' : ''}">${CF_REL[cf.rel][0]}</span>`;
 const meter = n => `<span class="meter" title="Source confidence ${n}/5: number and authority of upstream sources">${'●'.repeat(n)}<i>${'●'.repeat(5 - n)}</i></span>`;
 const DECISION_BUTTONS = [['accept', '✓ Accept'], ['reject', '✗ Reject'], ['flag', '⚠ Flag'], ['skip', '⏭ Skip'], ['narrower', '↓ Accept as narrower term'], ['edit', '✎ Edit wording…']];
+// Answers in the two-step review (same categories as the AI's suggested answer)
+const RELATIONS = [['same', 'Same condition', 'Names exactly the same patients as the ICD entity'],
+  ['narrower', 'Narrower', 'Covers fewer patients than the ICD entity: a subtype or more specific form'],
+  ['broader', 'Broader', 'Covers more patients than the ICD entity'],
+  ['related', 'Related, not the same', 'Overlaps with or is associated with the entity, but is not the same condition'],
+  ['different', 'Different condition', 'Names another condition'],
+  ['unclear', "Can't tell", 'Not enough information to judge']];
+const relLabel = r => (RELATIONS.find(x => x[0] === r) || [r, r])[1];
+const CONF_HELP = ['', 'Guess', 'Unsure', 'Fairly sure', 'Sure', 'Certain'];
+const safeUrl = u => /^https?:\/\//i.test(u || '') ? u : '#';
 
 const Review = {
   sel: 0, filter: 'all', sort: 'conf', cfOn: true, about: false, mine: {}, locked: new Set(), closed: false, canEdit: false,
+  judg: {}, expl: {}, pend: {}, editFirst: new Set(), editSecond: new Set(),
 
   async start() {
     const asg = ME && ME.chapters.find(c => c.chapter === B.tag);
-    this.canEdit = !!(asg && asg.status === 'active' && ME.person.consent_at && !ME.person.withdrawn_at);
+    this.canEdit = !!(asg && asg.status === 'active' && ME.consent_current);
     if (this.canEdit) {
       try {
         const d = await api('/api/decisions?chapter=' + B.tag);
         this.mine = d.decisions; this.locked = new Set(d.locked); this.closed = d.closed;
+        this.judg = d.judgements || {}; this.expl = d.explanations || {};
         if (d.closed) this.canEdit = false;
       } catch (e) { this.banner = 'Could not load your decisions: ' + e.message; this.canEdit = false; }
     }
@@ -431,7 +475,22 @@ const Review = {
     if (want) this.sel = Math.max(0, B.entities.findIndex(e => e.id === want[1]));
     this.render();
   },
+  // view: not reviewing · first: no answer yet · reveal: answered, explanation not opened ·
+  // second: explanation open, second answer due · done: ready for a decision
+  stage(p) {
+    const J = this.judg[p.id];
+    if (!this.canEdit) return 'view';
+    if (!J || (this.editFirst.has(p.id) && !J.revealed)) return 'first';
+    if (J.holdout || !J.has_explanation) return 'done';
+    if (!J.revealed) return 'reveal';
+    if (!J.revised_relation || this.editSecond.has(p.id)) return 'second';
+    return 'done';
+  },
+  // CodeFusion's verdicts are hints too: hidden from a reviewer until their first answer is locked
+  cfShown(p) { return ['view', 'second', 'done'].includes(this.stage(p)); },
+  entityCfShown(e) { return e.proposals.every(p => this.cfShown(p)); },
   severity(e) {
+    if (!this.entityCfShown(e)) return 0;
     const rels = [...Object.values(e.mondo).map(m => m.cf.rel), ...e.proposals.map(p => p.cf.rel)].filter(r => r !== 'confirmed');
     return !rels.length ? 0 : rels.some(contested) ? 2 : 1;
   },
@@ -446,7 +505,7 @@ const Review = {
   render() {
     const e = B.entities[this.sel];
     const all = B.entities.flatMap(x => x.proposals);
-    const nDone = all.filter(p => this.decided(p)).length;
+    const nDone = all.filter(p => this.decided(p)).length, nFirst = all.filter(p => this.judg[p.id]).length;
     const role = !ME ? `<div class="note">Read-only. Reviewers invited to this chapter <a href="#" id="signLink">sign in with ORCID</a> to record decisions.</div>`
       : this.closed ? '<div class="note warn">This chapter is closed; decisions are locked.</div>'
       : !this.canEdit ? `<div class="note">Read-only: you are not an active reviewer of this chapter${needsWelcome() ? ' (consent is needed first — see <a href="' + homeUrl('welcome') + '">Welcome</a>)' : ''}.</div>` : '';
@@ -461,7 +520,7 @@ const Review = {
       : (a, b) => b.confidence - a.confidence || a.text.localeCompare(b.text));
     $('view').innerHTML = `${this.banner ? `<div class="note warn">${esc(this.banner)}</div>` : ''}
     <div class="row" style="justify-content:space-between"><div><h1>Chapter ${esc(B.chapter)} — ${esc(B.chapter_title)}</h1>
-      <p class="lead">${ME && this.canEdit ? `Your decisions: ${nDone} of ${all.length}. Saved automatically. Your review is independent: other reviewers' decisions are never shown to you.`
+      <p class="lead">${ME && this.canEdit ? `Your first answers: ${nFirst} of ${all.length} · decisions: ${nDone} of ${all.length}. Saved automatically. Your review is independent: other reviewers' decisions are never shown to you.`
         : `${B.entities.length} entities, ${all.length} proposed synonyms.`}</p></div>
       <div class="row">
         <label class="switch"><input type="checkbox" id="cfToggle" ${this.cfOn ? 'checked' : ''}> CodeFusion overlay</label>
@@ -470,6 +529,8 @@ const Review = {
           .map(([k, l]) => `<option value="${k}" ${this.filter === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
         <select class="btn" id="sortSel"><option value="conf" ${this.sort === 'conf' ? 'selected' : ''}>Sort: source confidence</option><option value="alpha" ${this.sort === 'alpha' ? 'selected' : ''}>Sort: A–Z</option></select>
       </div></div>${role}
+    ${this.canEdit ? `<div class="note">Each synonym has three short steps: <b>1</b> give your answer, <b>2</b> open the AI explanation,
+      <b>3</b> answer again, keeping or changing your first answer. Then record your decision. Your first answer locks when you open the explanation.</div>` : ''}
     <div class="review"><div class="elist">${list}</div><div>
       <div class="card ehead">
         <div class="uri">Foundation <span class="mono">http://id.who.int/icd/entity/${esc(e.id)}</span>${e.mms_code ? ' · MMS <b>' + esc(e.mms_code) + '</b>' : ''} ·
@@ -485,15 +546,16 @@ const Review = {
           <div class="box"><b>Narrower / inclusions / exclusions</b>${[...e.narrower, ...e.inclusions].map(esc).join('<br>') || '<span class="muted">none</span>'}
             ${e.exclusions.length ? '<br><i>Excl.:</i> ' + e.exclusions.map(esc).join(', ') : ''}</div>
         </div>
-        ${this.cfOn ? Object.entries(e.mondo).map(([c, m]) => m.cf.rel === 'confirmed'
+        ${this.cfOn && !this.entityCfShown(e) ? `<div class="small muted" style="margin-top:6px">CodeFusion's verdicts appear once you have locked your first answer for every synonym of this entity.</div>` : ''}
+        ${this.cfOn && this.entityCfShown(e) ? Object.entries(e.mondo).map(([c, m]) => m.cf.rel === 'confirmed'
           ? `<div class="cfbanner ok"><span class="cf confirmed">CodeFusion: aligned</span> Mapping mode routes ${esc(c)} (label + synonyms) to this entity.</div>`
           : `<div class="cfbanner bad">${cfPill(m.cf)}<span>CodeFusion (mapping mode) routes ${esc(c)} to <b>${esc(m.cf.target_title || m.cf.target || 'no entity')}</b>
               ${m.cf.target ? `(<a href="${browserUrl(m.cf.target)}" target="_blank" rel="noopener">${esc(m.cf.target)} ↗</a>)` : ''}, not to this entity —
               MappingMatchLevel <b>${esc(m.cf.level)}</b>, score ${m.cf.score}. ${esc(CF_REL[m.cf.rel][1])}</span></div>`).join('') : ''}
       </div>
       <div class="row" style="margin:4px 0 2px"><b>Proposed synonyms (${e.proposals.length})</b>
-        ${this.canEdit ? '<span class="small muted">· Quick: </span><button class="btn small" data-bulk="accept">Accept all</button><button class="btn small" data-bulk="skip">Skip all</button>' : ''}</div>
-      ${this.cfOn ? `<div class="cflegend"><b>CodeFusion</b> — WHO’s ICD-11 coder, run independently as a second opinion (version ${esc(B.inputs.codefusion)}); each synonym is coded on its own.
+        ${this.canEdit ? `<span class="small muted">· Quick: </span><button class="btn small" data-bulk="accept">Accept all ready (${this.ready(e).length})</button><button class="btn small" data-bulk="skip">Skip all</button>` : ''}</div>
+      ${this.cfOn && this.entityCfShown(e) ? `<div class="cflegend"><b>CodeFusion</b> — WHO’s ICD-11 coder, run independently as a second opinion (version ${esc(B.inputs.codefusion)}); each synonym is coded on its own.
           <a href="#" id="cfAboutLink">ⓘ how to read these verdicts</a><br>
           ${['confirmed', 'broader', 'narrower', 'sibling', 'unrelated', 'nomatch'].map(r => `<span class="cf ${r}">${CF_REL[r][0]}</span>`).join(' ')}
           <span class="muted"> — a term coding to a parent or sibling on its own is expected, not an error; ⚠ unrelated and ∅ no match deserve a closer look.</span></div>` : ''}
@@ -504,19 +566,26 @@ const Review = {
     </div></div>${this.about ? this.aboutBox() : ''}`;
     this.bind();
   },
+  ready(e) { return e.proposals.filter(p => !this.locked.has(p.id) && this.stage(p) === 'done'); },
   card(p) {
-    const D = this.mine[p.id] || {}, locked = this.locked.has(p.id) || !this.canEdit;
-    const cls = !D.decision ? '' : D.decision === 'reject' ? 'rejected' : D.decision === 'flag' ? 'flagged' : 'decided';
+    const D = this.mine[p.id] || {}, J = this.judg[p.id], stage = this.stage(p);
+    const locked = this.locked.has(p.id) || !this.canEdit;
+    const steps = stage === 'first' || stage === 'reveal' || stage === 'second';
+    const cls = steps ? 'pending' : !D.decision ? '' : D.decision === 'reject' ? 'rejected' : D.decision === 'flag' ? 'flagged' : 'decided';
     const shown = ['variant', 'edit'].includes(D.decision) && D.final_text ? D.final_text : p.text;
     const dis = locked ? 'disabled' : '';
-    return `<div class="syn ${cls} ${this.cfOn && contested(p.cf.rel) ? 'contested' : ''} ${this.locked.has(p.id) ? 'locked' : ''}" data-id="${p.id}">
+    const cf = this.cfOn && this.cfShown(p);
+    return `<div class="syn ${cls} ${cf && contested(p.cf.rel) ? 'contested' : ''} ${this.locked.has(p.id) ? 'locked' : ''}" data-id="${p.id}">
       <div class="text">${esc(shown)}${shown !== p.text ? `<span class="small muted"> (proposed: ${esc(p.text)})</span>` : ''}
         ${this.locked.has(p.id) ? ' <span class="pill grey">final — locked</span>' : ''}<span class="status" data-st></span></div>
       <div class="meta">${meter(p.confidence)}<span>${esc(p.source.replace('Mondo (no upstream xref)', 'Mondo only'))}</span>
         <span class="mono">${esc(p.source_id)}</span><span class="mono">${esc(p.mondo)}</span>
-        ${this.cfOn ? `<span>CodeFusion ${cfPill(p.cf)}</span>${p.cf.target ? `<span>→ <a href="${browserUrl(p.cf.target)}" target="_blank" rel="noopener">${esc(p.cf.target_title || p.cf.target)} ↗</a> (score ${p.cf.score})</span>` : ''}` : ''}
+        ${cf ? `<span>CodeFusion ${cfPill(p.cf)}</span>${p.cf.target ? `<span>→ <a href="${browserUrl(p.cf.target)}" target="_blank" rel="noopener">${esc(p.cf.target_title || p.cf.target)} ↗</a> (score ${p.cf.score})</span>` : ''}` : ''}
         <span class="mono" title="Stable ID: same entity + text keeps this ID across releases">${p.id}</span></div>
-      ${p.variants.length ? `<div class="variants">Equivalent variants the pipeline did not pick${locked ? '' : ' (click to accept instead; click again to undo)'}: ${p.variants.map(v =>
+      ${stage === 'first' || stage === 'reveal' ? this.stepFirst(p, J, D, stage) : ''}
+      ${stage === 'second' ? this.explPanel(this.expl[p.id], true) + this.stepSecond(p, J) : ''}
+      ${stage === 'done' && J ? this.answersLine(J) + this.explPanel(this.expl[p.id], false) : ''}
+      ${steps ? '' : `${p.variants.length ? `<div class="variants">Equivalent variants the pipeline did not pick${locked ? '' : ' (click to accept instead; click again to undo)'}: ${p.variants.map(v =>
         `<button data-variant="${esc(v)}" ${dis} class="${D.decision === 'variant' && D.final_text === v ? 'chosen' : ''}">⇄ ${esc(v)}</button>`).join('')}</div>` : ''}
       ${!ME || !this.canEdit && !D.decision ? '' : `<div class="decide">
         ${DECISION_BUTTONS.map(([k, l]) => `<button class="${k} ${D.decision === k ? 'on' : ''}" data-d="${k}" ${dis}>${l}</button>`).join('')}
@@ -525,7 +594,78 @@ const Review = {
         ${D.decision === 'reject' ? `<input data-f="reason" ${dis} placeholder="Reason (recommended, optional)" value="${esc(D.reason || '')}">` : ''}
         ${D.decision === 'edit' ? `<input data-f="final_text" ${dis} placeholder="Your wording (goes to the admin for review)" value="${esc(D.final_text || '')}">` : ''}
         <input data-f="comment" ${dis} placeholder="Comment — visible to admins only" value="${esc(D.comment || '')}">
-      </div>`}</div>`;
+      </div>`}`}</div>`;
+  },
+  answerButtons(step, P, firstAnswer) {
+    return `<div class="relbtns" data-step="${step}">${RELATIONS.map(([k, l, h]) => `<button data-rel="${k}" title="${esc(h)}" class="${P.relation === k ? 'on' : ''}">${esc(l)}${firstAnswer === k ? '<span class="firstmark">your first answer</span>' : ''}</button>`).join('')}</div>
+      <div class="confbtns" data-step="${step}"><span class="small muted">Confidence</span>${[1, 2, 3, 4, 5].map(n =>
+        `<button data-conf="${n}" title="${CONF_HELP[n]}" class="${P.confidence === n ? 'on' : ''}">${n}</button>`).join('')}<span class="small muted">1 = guess · 5 = certain</span></div>`;
+  },
+  stepFirst(p, J, D, stage) {
+    const P = this.pend[p.id] || (J ? { relation: J.blind_relation, confidence: J.blind_confidence } : {});
+    return `<div class="step"><div class="stephead"><b>Step 1 · Your answer</b>
+        <span class="small muted">How does this phrase compare with the ICD entity? Answer from your own knowledge, before any AI or CodeFusion hint.</span></div>
+      ${this.answerButtons('first', P)}
+      ${stage === 'reveal' ? `<div class="row stepnext"><button class="btn primary small" data-reveal>Lock my answer and show the AI explanation</button>
+        <span class="small muted">Saved. You can change it until you open the explanation.</span></div>` : ''}
+      ${D.decision ? `<div class="small muted">Decision recorded before the two-step review: ${esc(D.decision)}. It stays; you can change it after the steps.</div>` : ''}</div>`;
+  },
+  stepSecond(p, J) {
+    const P = this.pend[p.id] || (J.revised_relation ? { relation: J.revised_relation, confidence: J.revised_confidence } : {});
+    return `<div class="step"><div class="stephead"><b>Step 3 · Your answer after reading the explanation</b>
+        <span class="small muted">Your first answer: ${esc(relLabel(J.blind_relation))}, confidence ${J.blind_confidence}. Keep it or change it.</span></div>
+      ${this.answerButtons('second', P, J.blind_relation)}
+      <div class="row stepnext"><button class="btn primary small" data-savesecond ${P.relation && P.confidence ? '' : 'disabled'}>Save my answer</button></div></div>`;
+  },
+  answersLine(J) {
+    const first = `<b>${esc(relLabel(J.blind_relation))}</b> (confidence ${J.blind_confidence})`;
+    if (J.holdout || !J.has_explanation) {
+      return `<div class="answers">Your answer: ${first} <button class="linkbtn" data-editfirst>change</button>
+        <span class="small muted">· ${J.holdout ? 'No AI explanation for this synonym: it is in the comparison group (about 1 in 10, chosen at random).'
+          : 'No AI explanation is available for this synonym.'}</span></div>`;
+    }
+    return `<div class="answers">Your answers: first ${first} → after the explanation <b>${esc(relLabel(J.revised_relation))}</b>
+      (confidence ${J.revised_confidence}) <button class="linkbtn" data-editsecond>change</button></div>`;
+  },
+  explPanel(x, open) {
+    if (!x) return '';
+    return `<details class="expl" ${open ? 'open' : ''}><summary><b>Step 2 · AI explanation</b> <span class="pill info">AI's answer: ${esc(relLabel(x.llm_relation))}</span></summary>
+      <p class="small muted">Written by an AI model (Claude) and checked by a second AI pass, not by clinicians. It may contain errors; your judgement decides.</p>
+      <p><b>The ICD entity:</b> ${esc(x.about)}</p>
+      <p><b>In plain words:</b> ${esc(x.plain_words)}</p>
+      ${(x.word_by_word || []).length ? `<p><b>Word by word:</b></p><ul>${x.word_by_word.map(w => `<li><b>${esc(w.term)}</b>: ${esc(w.meaning)}</li>`).join('')}</ul>` : ''}
+      <p><b>What happens in the body:</b> ${esc(x.what_happens)}</p>
+      <p><b>Compared with the ICD entity:</b> ${esc(x.relation_reason)}</p>
+      ${x.watch_out ? `<p class="watch"><b>Watch out:</b> ${esc(x.watch_out)}</p>` : ''}
+      <p class="small">Sources: ${(x.sources || []).map(s => `<a href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener">${esc(s.title || s.url)}</a>`).join(' · ')}</p></details>`;
+  },
+  // record a click on a step's answer or confidence; the first answer saves as soon as both are chosen
+  async answer(id, step, patch, card) {
+    const J = this.judg[id];
+    const base = this.pend[id] || (step === 'first'
+      ? (J ? { relation: J.blind_relation, confidence: J.blind_confidence } : {})
+      : (J && J.revised_relation ? { relation: J.revised_relation, confidence: J.revised_confidence } : {}));
+    this.pend[id] = { ...base, ...patch };
+    if (step === 'first' && this.pend[id].relation && this.pend[id].confidence) return this.saveAnswer(id, 'first', card);
+    this.render();
+  },
+  async saveAnswer(id, step, card) {
+    const P = this.pend[id] || {};
+    flash(card && card.querySelector('[data-st]'), 'saving…');
+    try {
+      const r = await api('/api/judgements/' + id, { method: 'PUT', body: { stage: step, relation: P.relation, confidence: P.confidence } });
+      this.judg[id] = r.judgement; delete this.pend[id];
+      (step === 'first' ? this.editFirst : this.editSecond).delete(id);
+      this.render();
+    } catch (e) { flash(card && card.querySelector('[data-st]'), e.message, 'err'); }
+  },
+  async reveal(id, card) {
+    flash(card.querySelector('[data-st]'), 'opening…');
+    try {
+      const r = await api(`/api/judgements/${id}/reveal`, { method: 'POST' });
+      this.expl[id] = r.explanation; this.judg[id] = r.judgement; delete this.pend[id];
+      this.render();
+    } catch (e) { flash(card.querySelector('[data-st]'), e.message, 'err'); }
   },
   async save(id, D, card) {
     const st = card && card.querySelector('[data-st]');
@@ -554,6 +694,16 @@ const Review = {
     view.querySelectorAll('.syn').forEach(card => {
       const id = card.dataset.id, cur = () => ({ ...(this.mine[id] || {}) });
       const commit = async D => { if (await this.save(id, D, card)) this.render(); };
+      card.querySelectorAll('.relbtns button, .confbtns button').forEach(b => b.onclick = () =>
+        this.answer(id, b.parentElement.dataset.step, b.dataset.rel ? { relation: b.dataset.rel } : { confidence: +b.dataset.conf }, card));
+      const rv = card.querySelector('[data-reveal]');
+      if (rv) rv.onclick = () => this.reveal(id, card);
+      const sv = card.querySelector('[data-savesecond]');
+      if (sv) sv.onclick = () => this.saveAnswer(id, 'second', card);
+      const ef = card.querySelector('[data-editfirst]');
+      if (ef) ef.onclick = () => { this.editFirst.add(id); this.render(); };
+      const es = card.querySelector('[data-editsecond]');
+      if (es) es.onclick = () => { this.editSecond.add(id); this.render(); };
       card.querySelectorAll('[data-d]').forEach(b => b.onclick = () => {
         const D = cur(), d = b.dataset.d;
         if (D.decision === d) return commit({ decision: '' });          // clicking the active decision removes it
@@ -574,7 +724,8 @@ const Review = {
       });
     });
     view.querySelectorAll('[data-bulk]').forEach(b => b.onclick = async () => {
-      for (const p of B.entities[this.sel].proposals) {
+      const e = B.entities[this.sel];                 // accepting needs both answers first; skipping does not
+      for (const p of b.dataset.bulk === 'accept' ? this.ready(e) : e.proposals) {
         if (!this.locked.has(p.id)) await this.save(p.id, { decision: b.dataset.bulk, comment: (this.mine[p.id] || {}).comment }, null);
       }
       this.render();
@@ -730,7 +881,10 @@ const Admin = {
         <span></span><div class="small muted">Includes every synonym of the chosen chapters, including ones sent before; the batch ID and date are recorded per synonym.
           Final_Decision is empty for synonyms that are not final yet.</div>
         <span></span><div><button class="btn primary" id="expWho" ${a}>Export WHO file (CSV)</button> <button class="btn" id="expInt" ${a}>Export internal file (CSV)</button>
-          <span class="status" id="expSt"></span></div></div></div>` : ''}
+          <button class="btn" id="expStudy" ${a}>Export study file (CSV)</button>
+          <span class="status" id="expSt"></span></div>
+        <span></span><div class="small muted">Study file: one row per reviewer and synonym (first answer, AI answer, second answer, confidences, holdout,
+          decision), for the agreement analysis. Reviewers appear as codes, with no names or ORCID iDs. Leave out rows marked Reviewer_Withdrawn = yes.</div></div></div>` : ''}
       <div class="card"><h2 style="margin-top:0">Author list (credited reviewers with consent)</h2>
         <button class="btn" data-auth="csv">CSV</button> <button class="btn" data-auth="cff">CITATION.cff</button> <button class="btn" data-auth="zenodo">Zenodo metadata (.zenodo.json)</button>
         <p class="small muted">Name, ORCID iD, affiliation, ROR ID; withdrawn reviewers are left out.</p></div>`);
@@ -738,6 +892,8 @@ const Admin = {
     if ($('expWho')) $('expWho').onclick = () => chosen() ? download(`/api/admin/export/who?chapters=${chosen()}&batch=${encodeURIComponent($('expBatch').value)}`, 'who.csv')
       .catch(e => flash($('expSt'), e.message, 'err')) : flash($('expSt'), 'Choose chapters.', 'err');
     if ($('expInt')) $('expInt').onclick = () => chosen() ? download(`/api/admin/export/internal?chapters=${chosen()}`, 'internal.csv')
+      .catch(e => flash($('expSt'), e.message, 'err')) : flash($('expSt'), 'Choose chapters.', 'err');
+    if ($('expStudy')) $('expStudy').onclick = () => chosen() ? download(`/api/admin/export/study?chapters=${chosen()}`, 'study-judgements.csv')
       .catch(e => flash($('expSt'), e.message, 'err')) : flash($('expSt'), 'Choose chapters.', 'err');
     el.querySelectorAll('[data-auth]').forEach(b => b.onclick = () => download('/api/admin/authors?format=' + b.dataset.auth, 'authors'));
   },

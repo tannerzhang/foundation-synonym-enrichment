@@ -444,7 +444,12 @@ const CF_REL = {
 const contested = rel => ['unrelated', 'nomatch', 'rootfallback'].includes(rel);
 const cfPill = cf => `<span class="cf ${cf.rel}" title="${esc(CF_REL[cf.rel][1])}${cf.level ? ' MatchLevel ' + esc(cf.level) + ', score ' + cf.score + '.' : ''}">${CF_REL[cf.rel][0]}</span>`;
 const meter = n => `<span class="meter" title="Source confidence ${n}/5: number and authority of upstream sources">${'●'.repeat(n)}<i>${'●'.repeat(5 - n)}</i></span>`;
-const DECISION_BUTTONS = [['accept', '✓ Accept'], ['reject', '✗ Reject'], ['flag', '⚠ Flag'], ['skip', '⏭ Skip'], ['narrower', '↓ Accept as narrower term'], ['edit', '✎ Edit wording…']];
+// A reviewer's decision follows their final answer (the server sets it); only wording and skip are separate.
+const DERIVED = { same: 'accept', narrower: 'narrower', broader: 'reject', related: 'reject', different: 'reject', unclear: 'flag' };
+const ACCEPTED = ['accept', 'variant', 'edit'];
+const DECISION_LABEL = { accept: ['ok', '✓ Accept'], variant: ['ok', '✓ Accept, variant wording'], edit: ['ok', '✓ Accept, edited wording'],
+  narrower: ['ok', '↓ Accept as narrower term'], reject: ['bad', '✗ Reject'], flag: ['warn', '⚠ Flag for the admin'], skip: ['grey', '⏭ Skipped'] };
+const decisionPill = d => { const [c, l] = DECISION_LABEL[d] || ['grey', d || '—']; return `<span class="pill ${c}">${esc(l)}</span>`; };
 // Answers in the two-step review (same categories as the AI's suggested answer)
 const RELATIONS = [['same', 'Same condition', 'Names exactly the same patients as the ICD entity'],
   ['narrower', 'Narrower', 'Covers fewer patients than the ICD entity: a subtype or more specific form'],
@@ -458,7 +463,7 @@ const safeUrl = u => /^https?:\/\//i.test(u || '') ? u : '#';
 
 const Review = {
   sel: 0, filter: 'all', sort: 'conf', cfOn: true, about: false, mine: {}, locked: new Set(), closed: false, canEdit: false,
-  judg: {}, expl: {}, pend: {}, editFirst: new Set(), editSecond: new Set(),
+  judg: {}, expl: {}, pend: {}, editSecond: new Set(),
 
   async start() {
     const asg = ME && ME.chapters.find(c => c.chapter === B.tag);
@@ -475,13 +480,12 @@ const Review = {
     if (want) this.sel = Math.max(0, B.entities.findIndex(e => e.id === want[1]));
     this.render();
   },
-  // view: not reviewing · first: no answer yet · reveal: answered, explanation not opened ·
-  // second: explanation open, second answer due · done: ready for a decision
+  // view: not reviewing · first: no answer yet · reveal: answered, not locked yet ·
+  // second: step 2 opened (explanation, or none for a holdout synonym), final answer due · done: decided
   stage(p) {
     const J = this.judg[p.id];
     if (!this.canEdit) return 'view';
-    if (!J || (this.editFirst.has(p.id) && !J.revealed)) return 'first';
-    if (J.holdout || !J.has_explanation) return 'done';
+    if (!J) return 'first';
     if (!J.revealed) return 'reveal';
     if (!J.revised_relation || this.editSecond.has(p.id)) return 'second';
     return 'done';
@@ -529,8 +533,9 @@ const Review = {
           .map(([k, l]) => `<option value="${k}" ${this.filter === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
         <select class="btn" id="sortSel"><option value="conf" ${this.sort === 'conf' ? 'selected' : ''}>Sort: source confidence</option><option value="alpha" ${this.sort === 'alpha' ? 'selected' : ''}>Sort: A–Z</option></select>
       </div></div>${role}
-    ${this.canEdit ? `<div class="note">Each synonym has three short steps: <b>1</b> give your answer, <b>2</b> open the AI explanation,
-      <b>3</b> answer again, keeping or changing your first answer. Then record your decision. Your first answer locks when you open the explanation.</div>` : ''}
+    ${this.canEdit ? `<div class="note">Each synonym has three short steps: <b>1</b> give your answer, <b>2</b> lock it and read the AI explanation
+      (about 1 in 10 synonyms have none, for comparison), <b>3</b> give your final answer, keeping or changing the first. Your final answer is
+      your decision: same condition → accept · narrower → accept as narrower term · broader, related or different → reject · can't tell → flag for the admin.</div>` : ''}
     <div class="review"><div class="elist">${list}</div><div>
       <div class="card ehead">
         <div class="uri">Foundation <span class="mono">http://id.who.int/icd/entity/${esc(e.id)}</span>${e.mms_code ? ' · MMS <b>' + esc(e.mms_code) + '</b>' : ''} ·
@@ -554,7 +559,7 @@ const Review = {
               MappingMatchLevel <b>${esc(m.cf.level)}</b>, score ${m.cf.score}. ${esc(CF_REL[m.cf.rel][1])}</span></div>`).join('') : ''}
       </div>
       <div class="row" style="margin:4px 0 2px"><b>Proposed synonyms (${e.proposals.length})</b>
-        ${this.canEdit ? `<span class="small muted">· Quick: </span><button class="btn small" data-bulk="accept">Accept all ready (${this.ready(e).length})</button><button class="btn small" data-bulk="skip">Skip all</button>` : ''}</div>
+        ${this.canEdit ? `<span class="small muted">· </span><button class="btn small" data-bulk="skip" title="Mark every synonym of this entity you have not answered as skipped">Skip unanswered</button>` : ''}</div>
       ${this.cfOn && this.entityCfShown(e) ? `<div class="cflegend"><b>CodeFusion</b> — WHO’s ICD-11 coder, run independently as a second opinion (version ${esc(B.inputs.codefusion)}); each synonym is coded on its own.
           <a href="#" id="cfAboutLink">ⓘ how to read these verdicts</a><br>
           ${['confirmed', 'broader', 'narrower', 'sibling', 'unrelated', 'nomatch'].map(r => `<span class="cf ${r}">${CF_REL[r][0]}</span>`).join(' ')}
@@ -566,7 +571,6 @@ const Review = {
     </div></div>${this.about ? this.aboutBox() : ''}`;
     this.bind();
   },
-  ready(e) { return e.proposals.filter(p => !this.locked.has(p.id) && this.stage(p) === 'done'); },
   card(p) {
     const D = this.mine[p.id] || {}, J = this.judg[p.id], stage = this.stage(p);
     const locked = this.locked.has(p.id) || !this.canEdit;
@@ -583,18 +587,24 @@ const Review = {
         ${cf ? `<span>CodeFusion ${cfPill(p.cf)}</span>${p.cf.target ? `<span>→ <a href="${browserUrl(p.cf.target)}" target="_blank" rel="noopener">${esc(p.cf.target_title || p.cf.target)} ↗</a> (score ${p.cf.score})</span>` : ''}` : ''}
         <span class="mono" title="Stable ID: same entity + text keeps this ID across releases">${p.id}</span></div>
       ${stage === 'first' || stage === 'reveal' ? this.stepFirst(p, J, D, stage) : ''}
-      ${stage === 'second' ? this.explPanel(this.expl[p.id], true) + this.stepSecond(p, J) : ''}
-      ${stage === 'done' && J ? this.answersLine(J) + this.explPanel(this.expl[p.id], false) : ''}
-      ${steps ? '' : `${p.variants.length ? `<div class="variants">Equivalent variants the pipeline did not pick${locked ? '' : ' (click to accept instead; click again to undo)'}: ${p.variants.map(v =>
+      ${stage === 'second' ? (this.expl[p.id] ? this.explPanel(this.expl[p.id], true) : this.noExplanation(J)) + this.stepSecond(p, J) : ''}
+      ${stage === 'done' ? this.answersLine(J, D, locked) + this.explPanel(this.expl[p.id], false) : ''}
+      ${stage === 'done' && ACCEPTED.includes(D.decision) ? this.wording(p, D, dis, locked) : ''}
+      ${stage === 'done' && D.decision ? `<div class="extra" style="grid-template-columns:1fr">
+        <input data-f="comment" ${dis} placeholder="Comment — visible to admins only" value="${esc(D.comment || '')}"></div>` : ''}
+      ${stage === 'view' && D.decision ? `<div class="answers">Decision: ${decisionPill(D.decision)}</div>` : ''}</div>`;
+  },
+  // wording tools for an accepted synonym: a variant the pipeline did not pick, or edited wording
+  wording(p, D, dis, locked) {
+    return `${p.variants.length ? `<div class="variants">Equivalent variants the pipeline did not pick${locked ? '' : ' (click to use one instead; click again to undo)'}: ${p.variants.map(v =>
         `<button data-variant="${esc(v)}" ${dis} class="${D.decision === 'variant' && D.final_text === v ? 'chosen' : ''}">⇄ ${esc(v)}</button>`).join('')}</div>` : ''}
-      ${!ME || !this.canEdit && !D.decision ? '' : `<div class="decide">
-        ${DECISION_BUTTONS.map(([k, l]) => `<button class="${k} ${D.decision === k ? 'on' : ''}" data-d="${k}" ${dis}>${l}</button>`).join('')}
-        ${D.decision && !locked ? '<button data-clear title="Remove my decision">↺ Clear</button>' : ''}</div>
-      <div class="extra">
-        ${D.decision === 'reject' ? `<input data-f="reason" ${dis} placeholder="Reason (recommended, optional)" value="${esc(D.reason || '')}">` : ''}
-        ${D.decision === 'edit' ? `<input data-f="final_text" ${dis} placeholder="Your wording (goes to the admin for review)" value="${esc(D.final_text || '')}">` : ''}
-        <input data-f="comment" ${dis} placeholder="Comment — visible to admins only" value="${esc(D.comment || '')}">
-      </div>`}`}</div>`;
+      <div class="decide"><button class="edit ${D.decision === 'edit' ? 'on' : ''}" data-editwording ${dis}>✎ Edit wording…</button></div>
+      ${D.decision === 'edit' ? `<div class="extra" style="grid-template-columns:1fr"><input data-f="final_text" ${dis} placeholder="Your wording (goes to the admin for review)" value="${esc(D.final_text || '')}"></div>` : ''}`;
+  },
+  noExplanation(J) {
+    return `<div class="expl"><b>Step 2 · No AI explanation</b> <span class="small muted">${J.holdout
+      ? 'This synonym is in the comparison group (about 1 in 10, chosen at random) and has no AI explanation. Look at your answer again and keep or change it.'
+      : 'No AI explanation is available for this synonym. Look at your answer again and keep or change it.'}</span></div>`;
   },
   answerButtons(step, P, firstAnswer) {
     return `<div class="relbtns" data-step="${step}">${RELATIONS.map(([k, l, h]) => `<button data-rel="${k}" title="${esc(h)}" class="${P.relation === k ? 'on' : ''}">${esc(l)}${firstAnswer === k ? '<span class="firstmark">your first answer</span>' : ''}</button>`).join('')}</div>
@@ -606,26 +616,26 @@ const Review = {
     return `<div class="step"><div class="stephead"><b>Step 1 · Your answer</b>
         <span class="small muted">How does this phrase compare with the ICD entity? Answer from your own knowledge, before any AI or CodeFusion hint.</span></div>
       ${this.answerButtons('first', P)}
-      ${stage === 'reveal' ? `<div class="row stepnext"><button class="btn primary small" data-reveal>Lock my answer and show the AI explanation</button>
-        <span class="small muted">Saved. You can change it until you open the explanation.</span></div>` : ''}
-      ${D.decision ? `<div class="small muted">Decision recorded before the two-step review: ${esc(D.decision)}. It stays; you can change it after the steps.</div>` : ''}</div>`;
+      ${stage === 'reveal' ? `<div class="row stepnext"><button class="btn primary small" data-reveal>Lock my answer and go to step 2</button>
+        <span class="small muted">Saved. You can change it until you lock it.</span></div>` : ''}
+      ${D.decision === 'skip' ? `<div class="small muted">Skipped. Answer it to review it after all.</div>`
+        : D.decision ? `<div class="small muted">Decision recorded before the two-step review: ${esc(D.decision)}. Your final answer will replace it.</div>`
+        : `<div class="small"><button class="linkbtn" data-skip>Skip this synonym</button></div>`}</div>`;
   },
   stepSecond(p, J) {
     const P = this.pend[p.id] || (J.revised_relation ? { relation: J.revised_relation, confidence: J.revised_confidence } : {});
-    return `<div class="step"><div class="stephead"><b>Step 3 · Your answer after reading the explanation</b>
-        <span class="small muted">Your first answer: ${esc(relLabel(J.blind_relation))}, confidence ${J.blind_confidence}. Keep it or change it.</span></div>
+    return `<div class="step"><div class="stephead"><b>Step 3 · Your final answer</b>
+        <span class="small muted">Your first answer: ${esc(relLabel(J.blind_relation))}, confidence ${J.blind_confidence}. Keep it or change it. Your final answer is your decision.</span></div>
       ${this.answerButtons('second', P, J.blind_relation)}
-      <div class="row stepnext"><button class="btn primary small" data-savesecond ${P.relation && P.confidence ? '' : 'disabled'}>Save my answer</button></div></div>`;
+      <div class="row stepnext"><button class="btn primary small" data-savesecond ${P.relation && P.confidence ? '' : 'disabled'}>Save my final answer</button>
+        ${P.relation ? `<span class="small muted">Decision: ${decisionPill(DERIVED[P.relation])}</span>` : ''}</div></div>`;
   },
-  answersLine(J) {
-    const first = `<b>${esc(relLabel(J.blind_relation))}</b> (confidence ${J.blind_confidence})`;
-    if (J.holdout || !J.has_explanation) {
-      return `<div class="answers">Your answer: ${first} <button class="linkbtn" data-editfirst>change</button>
-        <span class="small muted">· ${J.holdout ? 'No AI explanation for this synonym: it is in the comparison group (about 1 in 10, chosen at random).'
-          : 'No AI explanation is available for this synonym.'}</span></div>`;
-    }
-    return `<div class="answers">Your answers: first ${first} → after the explanation <b>${esc(relLabel(J.revised_relation))}</b>
-      (confidence ${J.revised_confidence}) <button class="linkbtn" data-editsecond>change</button></div>`;
+  answersLine(J, D, locked) {
+    return `<div class="answers">Your first answer <b>${esc(relLabel(J.blind_relation))}</b> (confidence ${J.blind_confidence})
+      → final answer <b>${esc(relLabel(J.revised_relation))}</b> (confidence ${J.revised_confidence})
+      · Decision: ${decisionPill(D.decision || DERIVED[J.revised_relation])}
+      ${locked ? '' : '<button class="linkbtn" data-editsecond>change final answer</button>'}
+      ${J.holdout ? '<span class="small muted">· No AI explanation (comparison group).</span>' : ''}</div>`;
   },
   explPanel(x, open) {
     if (!x) return '';
@@ -655,7 +665,7 @@ const Review = {
     try {
       const r = await api('/api/judgements/' + id, { method: 'PUT', body: { stage: step, relation: P.relation, confidence: P.confidence } });
       this.judg[id] = r.judgement; delete this.pend[id];
-      (step === 'first' ? this.editFirst : this.editSecond).delete(id);
+      if (step === "second") this.editSecond.delete(id);
       this.render();
     } catch (e) { flash(card && card.querySelector('[data-st]'), e.message, 'err'); }
   },
@@ -700,33 +710,30 @@ const Review = {
       if (rv) rv.onclick = () => this.reveal(id, card);
       const sv = card.querySelector('[data-savesecond]');
       if (sv) sv.onclick = () => this.saveAnswer(id, 'second', card);
-      const ef = card.querySelector('[data-editfirst]');
-      if (ef) ef.onclick = () => { this.editFirst.add(id); this.render(); };
       const es = card.querySelector('[data-editsecond]');
       if (es) es.onclick = () => { this.editSecond.add(id); this.render(); };
-      card.querySelectorAll('[data-d]').forEach(b => b.onclick = () => {
-        const D = cur(), d = b.dataset.d;
-        if (D.decision === d) return commit({ decision: '' });          // clicking the active decision removes it
-        if (d === 'edit') { this.mine[id] = { ...D, decision: 'edit', final_text: '' }; return this.render(); }  // saved once wording is typed
-        commit({ decision: d, reason: d === 'reject' ? D.reason : null, comment: D.comment });
-      });
+      const sk = card.querySelector('[data-skip]');
+      if (sk) sk.onclick = () => commit({ decision: 'skip' });
+      const ew = card.querySelector('[data-editwording]');
+      if (ew) ew.onclick = () => {                     // edited wording is saved once typed; clicking again goes back to plain accept
+        const D = cur();
+        if (D.decision === 'edit') return commit({ decision: 'accept', comment: D.comment });
+        this.mine[id] = { ...D, decision: 'edit', final_text: '' }; this.render();
+      };
       card.querySelectorAll('[data-variant]').forEach(b => b.onclick = () => {
         const D = cur(), v = b.dataset.variant;
-        commit(D.decision === 'variant' && D.final_text === v ? { decision: '' } : { decision: 'variant', final_text: v, comment: D.comment });
+        commit(D.decision === 'variant' && D.final_text === v ? { decision: 'accept', comment: D.comment } : { decision: 'variant', final_text: v, comment: D.comment });
       });
-      const clear = card.querySelector('[data-clear]');
-      if (clear) clear.onclick = () => commit({ decision: '' });
       card.querySelectorAll('[data-f]').forEach(inp => inp.onchange = async () => {
         const D = { ...cur(), [inp.dataset.f]: inp.value };
-        if (!D.decision) return flash(card.querySelector('[data-st]'), 'Choose a decision first; the comment is saved with it.', 'err');
+        if (!D.decision) return;
         if (D.decision === 'edit' && !D.final_text) return;
         await this.save(id, D, card);
       });
     });
     view.querySelectorAll('[data-bulk]').forEach(b => b.onclick = async () => {
-      const e = B.entities[this.sel];                 // accepting needs both answers first; skipping does not
-      for (const p of b.dataset.bulk === 'accept' ? this.ready(e) : e.proposals) {
-        if (!this.locked.has(p.id)) await this.save(p.id, { decision: b.dataset.bulk, comment: (this.mine[p.id] || {}).comment }, null);
+      for (const p of B.entities[this.sel].proposals) {   // only synonyms not answered and not decided yet
+        if (!this.locked.has(p.id) && !this.judg[p.id] && !this.decided(p)) await this.save(p.id, { decision: 'skip' }, null);
       }
       this.render();
     });

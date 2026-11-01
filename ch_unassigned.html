@@ -485,13 +485,14 @@ const Review = {
   stage(p) {
     const J = this.judg[p.id];
     if (!this.canEdit) return 'view';
+    if (this.locked.has(p.id) && !(J && J.revised_relation)) return 'locked';   // final before this reviewer answered
     if (!J) return 'first';
     if (!J.revealed) return 'reveal';
     if (!J.revised_relation || this.editSecond.has(p.id)) return 'second';
     return 'done';
   },
   // CodeFusion's verdicts are hints too: hidden from a reviewer until their first answer is locked
-  cfShown(p) { return ['view', 'second', 'done'].includes(this.stage(p)); },
+  cfShown(p) { return ['view', 'locked', 'second', 'done'].includes(this.stage(p)); },
   entityCfShown(e) { return e.proposals.every(p => this.cfShown(p)); },
   severity(e) {
     if (!this.entityCfShown(e)) return 0;
@@ -592,7 +593,8 @@ const Review = {
       ${stage === 'done' && ACCEPTED.includes(D.decision) ? this.wording(p, D, dis, locked) : ''}
       ${stage === 'done' && D.decision ? `<div class="extra" style="grid-template-columns:1fr">
         <input data-f="comment" ${dis} placeholder="Comment — visible to admins only" value="${esc(D.comment || '')}"></div>` : ''}
-      ${stage === 'view' && D.decision ? `<div class="answers">Decision: ${decisionPill(D.decision)}</div>` : ''}</div>`;
+      ${stage === 'view' && D.decision ? `<div class="answers">Decision: ${decisionPill(D.decision)}</div>` : ''}
+      ${stage === 'locked' ? `<div class="answers small muted">Already final (the other reviewers agreed, or the admin decided it). No answer is needed from you.</div>` : ''}</div>`;
   },
   // wording tools for an accepted synonym: a variant the pipeline did not pick, or edited wording
   wording(p, D, dis, locked) {
@@ -665,6 +667,7 @@ const Review = {
     try {
       const r = await api('/api/judgements/' + id, { method: 'PUT', body: { stage: step, relation: P.relation, confidence: P.confidence } });
       this.judg[id] = r.judgement; delete this.pend[id];
+      if (r.decision) this.mine[id] = r.decision;            // the final answer sets the decision on the server
       if (step === "second") this.editSecond.delete(id);
       this.render();
     } catch (e) { flash(card && card.querySelector('[data-st]'), e.message, 'err'); }

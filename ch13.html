@@ -152,6 +152,20 @@ table.grid th { font-size: 11px; text-transform: uppercase; letter-spacing: .03e
 .answers { margin-top: 8px; font-size: 13px; }
 .linkbtn { border: 0; background: none; color: var(--info); text-decoration: underline; padding: 0 2px; font-size: 12px; }
 
+/* entity stays visible while scrolling its synonyms */
+.estick { position: sticky; top: 0; z-index: 5; background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  padding: 8px 12px; margin: 4px 0 6px; box-shadow: 0 2px 6px rgba(15, 23, 42, .08); }
+.estick .et { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+.estick .et b { font-size: 15px; }
+.estick .et .btn { margin-left: auto; }
+.estick .ed { color: var(--muted); margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* optional rating of the AI explanation */
+.rate { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0 6px; }
+.rate button { border: 1px solid var(--line); background: #fff; border-radius: 12px; padding: 1px 10px; font-size: 12px; }
+.rate button.on.helpful { background: var(--ok); border-color: var(--ok); color: #fff; }
+.rate button.on.not_helpful { background: var(--muted); border-color: var(--muted); color: #fff; }
+.rate button.on.misleading { background: var(--bad); border-color: var(--bad); color: #fff; }
+
 </style>
 </head>
 <body>
@@ -451,6 +465,7 @@ const DECISION_LABEL = { accept: ['ok', '✓ Accept'], variant: ['ok', '✓ Acce
   narrower: ['ok', '↓ Accept as narrower term'], reject: ['bad', '✗ Reject'], flag: ['warn', '⚠ Flag for the admin'], skip: ['grey', '⏭ Skipped'] };
 const decisionPill = d => { const [c, l] = DECISION_LABEL[d] || ['grey', d || '—']; return `<span class="pill ${c}">${esc(l)}</span>`; };
 // Answers in the two-step review (same categories as the AI's suggested answer)
+const RATINGS = [['helpful', 'Helpful'], ['not_helpful', 'Not helpful'], ['misleading', 'Wrong or misleading']];
 const RELATIONS = [['same', 'Same condition', 'Names exactly the same patients as the ICD entity'],
   ['narrower', 'Narrower', 'Covers fewer patients than the ICD entity: a subtype or more specific form'],
   ['broader', 'Broader', 'Covers more patients than the ICD entity'],
@@ -592,8 +607,12 @@ const Review = {
               ${cf.target ? `(<a href="${browserUrl(cf.target)}" target="_blank" rel="noopener">${esc(cf.target)} ↗</a>)` : ''}, not to this entity —
               MappingMatchLevel <b>${esc(cf.level)}</b>, score ${cf.score}. ${esc(CF_REL[cf.rel][1])}</span></div>`).join('') : ''}
       </div>
-      <div class="row" style="margin:4px 0 2px"><b>Proposed synonyms (${e.proposals.length})</b>
-        ${this.canEdit ? `<span class="small muted">· </span><button class="btn small" data-bulk="skip" title="Mark every synonym of this entity you have not answered as skipped">Skip unanswered</button>` : ''}</div>
+      <div class="estick" title="${esc(e.definition || '')}">
+        <div class="et"><span class="small muted">Proposed synonyms (${e.proposals.length}) for</span> <b>${esc(e.title)}</b>
+          ${e.mms_code ? `<span class="pill grey">MMS ${esc(e.mms_code)}</span>` : ''}
+          ${Object.entries(e.mondo).map(([c, m]) => `<span class="mondo">${esc(c)}</span><span class="small">${esc(m.label)}</span>`).join(' ')}
+          ${this.canEdit ? `<button class="btn small" data-bulk="skip" title="Mark every synonym of this entity you have not answered as skipped">Skip unanswered</button>` : ''}</div>
+        <div class="ed small">${esc(e.definition) || '<span class="muted">No definition in the Foundation.</span>'}</div></div>
       ${this.cfOn && this.entityCfShown(e) ? `<div class="cflegend"><b>CodeFusion</b> — WHO’s ICD-11 coder, run independently as a second opinion (version ${esc(B.inputs.codefusion)}); each synonym is coded on its own.
           <a href="#" id="cfAboutLink">ⓘ how to read these verdicts</a><br>
           ${['confirmed', 'broader', 'narrower', 'sibling', 'unrelated', 'nomatch'].map(r => `<span class="cf ${r}">${CF_REL[r][0]}</span>`).join(' ')}
@@ -621,8 +640,8 @@ const Review = {
         ${cf ? `<span>CodeFusion ${cfPill(cf)}</span>${cf.target ? `<span>→ <a href="${browserUrl(cf.target)}" target="_blank" rel="noopener">${esc(cf.target_title || cf.target)} ↗</a> (score ${cf.score})</span>` : ''}` : ''}
         <span class="mono" title="Stable ID: same entity + text keeps this ID across releases">${p.id}</span></div>
       ${stage === 'first' || stage === 'reveal' ? this.stepFirst(p, J, D, stage) : ''}
-      ${stage === 'second' ? (this.expl[p.id] ? this.explPanel(this.expl[p.id], true) : this.noExplanation(J)) + this.stepSecond(p, J) : ''}
-      ${stage === 'done' ? this.answersLine(J, D, locked) + this.explPanel(this.expl[p.id], false) : ''}
+      ${stage === 'second' ? (this.expl[p.id] ? this.explPanel(this.expl[p.id], true) + this.rating(J) : this.noExplanation(J)) + this.stepSecond(p, J) : ''}
+      ${stage === 'done' ? this.answersLine(J, D, locked) + this.explPanel(this.expl[p.id], false) + (this.expl[p.id] ? this.rating(J) : '') : ''}
       ${stage === 'done' && ACCEPTED.includes(D.decision) ? this.wording(p, D, dis, locked) : ''}
       ${stage === 'done' && D.decision ? `<div class="extra" style="grid-template-columns:1fr">
         <input data-f="comment" ${dis} placeholder="Comment — visible to admins only" value="${esc(D.comment || '')}"></div>` : ''}
@@ -671,6 +690,20 @@ const Review = {
       · Decision: ${decisionPill(D.decision || DERIVED[J.revised_relation])}
       ${locked ? '' : '<button class="linkbtn" data-editsecond>change final answer</button>'}
       ${J.holdout ? '<span class="small muted">· No AI explanation (comparison group).</span>' : ''}</div>`;
+  },
+  // optional: was the AI explanation useful? (does not change the decision)
+  rating(J) {
+    if (!this.canEdit || !J) return '';
+    return `<div class="rate"><span class="small muted">Was the AI explanation useful? <i>Optional; it does not change your decision.</i></span>
+      ${RATINGS.map(([k, l]) => `<button data-rate="${k}" class="${k} ${J.expl_rating === k ? 'on' : ''}" title="${J.expl_rating === k ? 'Click again to clear' : ''}">${l}</button>`).join('')}</div>`;
+  },
+  async rate(id, value, card) {
+    const J = this.judg[id];
+    flash(card.querySelector('[data-st]'), 'saving…');
+    try {
+      const r = await api(`/api/judgements/${id}/rating`, { method: 'PUT', body: { rating: J && J.expl_rating === value ? null : value } });
+      this.judg[id] = r.judgement; this.banner = null; this.render();
+    } catch (e) { this.problem(e, card); }
   },
   explPanel(x, open) {
     if (!x) return '';
@@ -749,6 +782,7 @@ const Review = {
       if (sv) sv.onclick = () => this.saveAnswer(id, 'second', card);
       const es = card.querySelector('[data-editsecond]');
       if (es) es.onclick = () => { this.editSecond.add(id); this.render(); };
+      card.querySelectorAll('[data-rate]').forEach(b => b.onclick = () => this.rate(id, b.dataset.rate, card));
       const sk = card.querySelector('[data-skip]');
       if (sk) sk.onclick = () => commit({ decision: 'skip' });
       const ew = card.querySelector('[data-editwording]');
